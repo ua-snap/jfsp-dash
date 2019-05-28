@@ -8,8 +8,10 @@ be easily used by JFSP app.
 # pylint: disable=invalid-name
 
 import os
+import pickle
 import pandas as pd
 from pprint import pprint
+from luts import zones
 
 data_dir = "data"
 
@@ -23,23 +25,6 @@ modelled_categories = ["gcm_tx0", "gcm_tx1", "gcm_tx2"]
 scenarios = ["rcp45", "rcp60", "rcp85"]
 
 models = ["CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"]
-
-zones = [
-    "ChugachNationalForest",
-    "CopperRiverArea",
-    "DeltaArea",
-    "FairbanksArea",
-    "GalenaZone",
-    "InteriorBoreal",
-    "KenaiKodiakArea",
-    "MatSuArea",
-    "MilitaryZone",
-    "SouthcentralBoreal",
-    "SouthwestArea",
-    "TananaZone",
-    "TokArea",
-    "UpperYukonZone",
-]
 
 total_area_burned = {}
 
@@ -71,4 +56,6 @@ for category in modelled_categories:
             total_area_burned[category][scenario][model][
                 "statewide"
             ] = total_area_burned[category][scenario][model].sum(axis=1)
-            pprint(total_area_burned[category][scenario][model])
+
+with open('total_area_burned.pickle', 'wb') as handle:
+    pickle.dump(total_area_burned, handle)
