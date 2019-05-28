@@ -20,6 +20,9 @@ with open("total_area_burned.pickle", "rb") as handle:
 # Add Statewide to zones
 zones["statewide"] = "Statewide"
 
+# PLACEHOLDER for data exploration
+df = total_area_burned["gcm_tx0"]["rcp45"]["CCSM4"]
+
 app = dash.Dash(__name__)
 # AWS Elastic Beanstalk looks for application by default,
 # if this variable (application) isn't set you will get a WSGI error.
@@ -82,9 +85,9 @@ table = dash_table.DataTable(
     id="table",
     columns=[
         {"name": i, "id": i}
-        for i in total_area_burned["gcm_tx0"]["rcp45"]["CCSM4"].columns
+        for i in df.columns
     ],
-    data=total_area_burned["gcm_tx0"]["rcp45"]["CCSM4"].to_dict("records"),
+    data=df.to_dict("records"),
 )
 
 app.layout = html.Div(
@@ -102,8 +105,7 @@ app.layout = html.Div(
 
 @app.callback(Output("total_area_burned", "figure"), inputs=[Input("zone", "value")])
 def generate_total_area_burned(zone):
-    data = total_area_burned["gcm_tx0"]["rcp45"]["CCSM4"]
-    return {"data": [{"x": data.index.tolist(), "y": data[zone], "type": "bar"}]}
+    return {"data": [{"x": df.index.tolist(), "y": df[zone], "type": "bar"}]}
 
 
 if __name__ == "__main__":
