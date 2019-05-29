@@ -21,6 +21,7 @@ Before deploying, make sure and run `pipenv run pip freeze > requirements.txt` t
 
 ```
 eb init
+eb create # if needed to create environment
 eb deploy
 ```
 
