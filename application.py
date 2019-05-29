@@ -10,7 +10,7 @@ import pandas as pd
 import dash_core_components as dcc
 import dash_html_components as html
 from pprint import pprint
-from .luts import zones
+from luts import zones
 from dash.dependencies import Input, Output, State
 
 # Load data
