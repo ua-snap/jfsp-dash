@@ -8,13 +8,24 @@ zones = {
     "DeltaArea": "DeltaArea",
     "FairbanksArea": "FairbanksArea",
     "GalenaZone": "GalenaZone",
-    "InteriorBoreal": "InteriorBoreal",
     "KenaiKodiakArea": "KenaiKodiakArea",
     "MatSuArea": "MatSuArea",
     "MilitaryZone": "MilitaryZone",
-    "SouthcentralBoreal": "SouthcentralBoreal",
     "SouthwestArea": "SouthwestArea",
     "TananaZone": "TananaZone",
     "TokArea": "TokArea",
-    "UpperYukonZone": "UpperYukonZone"
+    "UpperYukonZone": "UpperYukonZone",
 }
+
+scenarios = {"rcp45": "rcp45", "rcp60": "rcp60", "rcp85": "rcp85"}
+
+models = {
+    "CCSM4": "CCSM4",
+    "GFDL-CM3": "GFDL-CM3",
+    "GISS-E2-R": "GISS-E2-R",
+    "IPSL-CM5A-LR": "IPSL-CM5A-LR",
+    "MRI-CGCM3": "MRI-CGCM3",
+}
+
+treatment_options = {"gcm_tx0":"Status quo", "gcm_tx1":"More FMO Full suppression", "gcm_tx2":"FMO Full suppression removed"}
+
