@@ -1,15 +1,22 @@
 # pylint: disable=C0103,E0401
 """
-Template for SNAP Dash apps.
+JFSP app.
+
+See gui.py for the Dash components and GUI.
+See luts.py for the lookup tables which drive both the data ingest and GUI.
+See preprocess.py for the data structure that this code assumes!
+
 """
 
 import pickle
+from pprint import pprint
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from luts import zones, scenarios, models, treatment_options
+from gui import layout
 
 # Load data
 with open("total_area_burned.pickle", "rb") as handle:
@@ -18,8 +25,7 @@ with open("total_area_burned.pickle", "rb") as handle:
 # Add Statewide to zones
 zones["statewide"] = "Statewide"
 
-# PLACEHOLDER for data exploration
-historical_df = total_area_burned["historical"]
+# TEMP todo remove this elsewhere downstream
 df = total_area_burned
 
 app = dash.Dash(__name__)
@@ -29,129 +35,7 @@ application = app.server
 
 app.title = "JFSP"
 
-navbar = html.Div(
-    className="navbar",
-    role="navigation",
-    children=[
-        html.Div(
-            className="navbar-brand",
-            children=[
-                html.A(
-                    className="navbar-item",
-                    href="#",
-                    children=[html.Img(src="assets/SNAP_acronym_color.svg")],
-                )
-            ],
-        )
-    ],
-)
-
-historical_checkbox = dcc.Checklist(
-    id="historical_checkbox",
-    options=[{"label": "Show historical", "value": "show_historical"}],
-    values=[],
-)
-
-historical_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Show historical model data?", className="label"),
-        html.Div(className="control", children=[historical_checkbox]),
-    ],
-)
-
-zone_dropdown = dcc.Dropdown(
-    id="zone",
-    options=[{"label": zones[key], "value": key} for key in zones],
-    value="statewide",
-)
-
-zone_dropdown_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Area", className="label"),
-        html.Div(className="control", children=[zone_dropdown]),
-    ],
-)
-
-scenarios_checklist = dcc.Checklist(
-    id="scenarios_checklist",
-    options=[{"label": scenarios[key], "value": key} for key in scenarios],
-    values=["rcp60"],
-)
-
-scenarios_checklist_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Scenarios", className="label"),
-        html.Div(className="control", children=[scenarios_checklist]),
-    ],
-)
-
-models_checklist = dcc.Checklist(
-    id="models_checklist",
-    options=[{"label": models[key], "value": key} for key in models],
-    values=["CCSM4"],
-)
-
-models_checklist_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Models", className="label"),
-        html.Div(className="control", children=[models_checklist]),
-    ],
-)
-
-treatment_options_checklist = dcc.Checklist(
-    id="treatment_options_checklist",
-    options=[
-        {"label": treatment_options[key], "value": key} for key in treatment_options
-    ],
-    values=["gcm_tx0"],
-)
-
-treatment_options_checklist_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Treatment options", className="label"),
-        html.Div(className="control", children=[treatment_options_checklist]),
-    ],
-)
-
-footer = html.Footer(
-    className="footer",
-    children=[
-        html.Div(
-            className="content has-text-centered",
-            children=[
-                dcc.Markdown(
-                    """
-This is a page footer, where we'd put legal notes and other items.
-                    """
-                )
-            ],
-        )
-    ],
-)
-
-graph_layout = html.Div(
-    className="container", children=[dcc.Graph(id="total_area_burned")]
-)
-
-app.layout = html.Div(
-    className="container",
-    children=[
-        navbar,
-        html.H3("Total area burned", className="title is-3"),
-        historical_field,
-        scenarios_checklist_field,
-        models_checklist_field,
-        treatment_options_checklist_field,
-        zone_dropdown_field,
-        graph_layout,
-        footer,
-    ],
-)
+app.layout = layout
 
 
 @app.callback(
@@ -170,30 +54,56 @@ def generate_total_area_burned(
     show_historical = "show_historical" in show_historical
     data_traces = []
 
+    # Future!
     for treatment in treatment_options:
         for scenario in scenarios:
             for model in models:
-                data_traces.append(
-                    {
-                        "x": df[treatment][scenario][model].index.tolist(),
-                        "y": df[treatment][scenario][model][zone],
-                        "type": "bar",
-                        "name": treatment + scenario + model,
-                    }
+                data_traces.extend(
+                    [
+                        {
+                            "x": df["future"][treatment][scenario][model][
+                                "annual"
+                            ].index.tolist(),
+                            "y": df["future"][treatment][scenario][model]["annual"][
+                                zone
+                            ],
+                            "type": "bar",
+                            "name": treatment + scenario + model,
+                        },
+                        {
+                            "x": df["future"][treatment][scenario][model][
+                                "rolling"
+                            ].index.tolist(),
+                            "y": df["future"][treatment][scenario][model]["rolling"][
+                                zone
+                            ],
+                            "type": "bar",
+                            "name": "30yr rolling " + treatment + scenario + model,
+                        },
+                    ]
                 )
 
+    # Past!
     if show_historical:
-        data_traces.append(
-            {
-                "x": historical_df.index.tolist(),
-                "y": historical_df[zone],
-                "type": "bar",
-                "name": "historical",
-            }
+        data_traces.extend(
+            [
+                {
+                    "x": df["historical"]["annual"].index.tolist(),
+                    "y": df["historical"]["annual"][zone],
+                    "type": "bar",
+                    "name": "historical",
+                },
+                {
+                    "x": df["historical"]["rolling"].index.tolist(),
+                    "y": df["historical"]["rolling"][zone],
+                    "type": "bar",
+                    "name": "30yr rolling historical",
+                },
+            ]
         )
 
-    layout = go.Layout(title="Total area burned", showlegend=True)
-    return {"data": data_traces, "layout": layout}
+    graph_layout = go.Layout(title="Total area burned", showlegend=True)
+    return {"data": data_traces, "layout": graph_layout}
 
 
 if __name__ == "__main__":
