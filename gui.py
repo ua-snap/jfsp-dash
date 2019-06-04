@@ -8,6 +8,10 @@ import dash_core_components as dcc
 import dash_html_components as html
 from luts import zones, scenarios, models, treatment_options
 
+# Add additional keys for items exposed via gui
+zones["statewide"] = "Statewide"
+models["5modelavg"] = "5modelavg"
+
 navbar = html.Div(
     className="navbar",
     role="navigation",
@@ -23,6 +27,21 @@ navbar = html.Div(
             ],
         )
     ],
+)
+
+decadal_radio = dcc.RadioItems(
+    labelClassName="radio",
+    id="decadal_radio",
+    className="control",
+    options=[
+        {"label": " Annual ", "value": "annual"},
+        {"label": " Decadal ", "value": "decadal"},
+    ],
+    value="annual",
+)
+decadal_radio_field = html.Div(
+    className="field",
+    children=[html.Label("Annual or decadal data?", className="label"), decadal_radio],
 )
 
 historical_checkbox = dcc.Checklist(
@@ -122,6 +141,7 @@ layout = html.Div(
     children=[
         navbar,
         html.H3("Total area burned", className="title is-3"),
+        decadal_radio_field,
         historical_field,
         scenarios_checklist_field,
         models_checklist_field,

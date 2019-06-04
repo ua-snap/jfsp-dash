@@ -22,9 +22,6 @@ from gui import layout
 with open("total_area_burned.pickle", "rb") as handle:
     total_area_burned = pickle.load(handle)
 
-# Add Statewide to zones
-zones["statewide"] = "Statewide"
-
 # TEMP todo remove this elsewhere downstream
 df = total_area_burned
 
@@ -34,7 +31,6 @@ app = dash.Dash(__name__)
 application = app.server
 
 app.title = "JFSP"
-
 app.layout = layout
 
 
@@ -46,13 +42,16 @@ app.layout = layout
         Input("scenarios_checklist", "values"),
         Input("models_checklist", "values"),
         Input("treatment_options_checklist", "values"),
+        Input("decadal_radio", "value"),
     ],
 )
 def generate_total_area_burned(
-    zone, show_historical, scenarios, models, treatment_options
+    zone, show_historical, scenarios, models, treatment_options, decadal_radio
 ):
     show_historical = "show_historical" in show_historical
     data_traces = []
+
+    interval = "annual" if decadal_radio == "annual" else "decadal"
 
     # Future!
     for treatment in treatment_options:
@@ -62,47 +61,63 @@ def generate_total_area_burned(
                     [
                         {
                             "x": df["future"][treatment][scenario][model][
-                                "annual"
+                                interval
                             ].index.tolist(),
-                            "y": df["future"][treatment][scenario][model]["annual"][
+                            "y": df["future"][treatment][scenario][model][interval][
                                 zone
                             ],
                             "type": "bar",
                             "name": treatment + scenario + model,
-                        },
-                        {
-                            "x": df["future"][treatment][scenario][model][
-                                "rolling"
-                            ].index.tolist(),
-                            "y": df["future"][treatment][scenario][model]["rolling"][
-                                zone
-                            ],
-                            "type": "bar",
-                            "name": "30yr rolling " + treatment + scenario + model,
-                        },
+                        }
                     ]
                 )
+
+                if interval == "annual":
+                    data_traces.extend(
+                        [
+                            {
+                                "x": df["future"][treatment][scenario][model][
+                                    "rolling"
+                                ].index.tolist(),
+                                "y": df["future"][treatment][scenario][model][
+                                    "rolling"
+                                ][zone],
+                                "type": "bar",
+                                "name": "30yr rolling " + treatment + scenario + model,
+                            }
+                        ]
+                    )
 
     # Past!
     if show_historical:
         data_traces.extend(
             [
                 {
-                    "x": df["historical"]["annual"].index.tolist(),
-                    "y": df["historical"]["annual"][zone],
+                    "x": df["historical"][interval].index.tolist(),
+                    "y": df["historical"][interval][zone],
                     "type": "bar",
                     "name": "historical",
-                },
-                {
-                    "x": df["historical"]["rolling"].index.tolist(),
-                    "y": df["historical"]["rolling"][zone],
-                    "type": "bar",
-                    "name": "30yr rolling historical",
-                },
+                }
             ]
         )
+        if interval == "annual":
+            data_traces.extend(
+                [
+                    {
+                        "x": df["historical"]["rolling"].index.tolist(),
+                        "y": df["historical"]["rolling"][zone],
+                        "type": "bar",
+                        "name": "30yr rolling historical"
+                    }
+                ]
+            )
 
-    graph_layout = go.Layout(title="Total area burned", showlegend=True)
+    graph_layout = go.Layout(
+        title="Total area burned",
+        showlegend=True,
+        xaxis={"title": "Year"},
+        yaxis={"title": "Acres"},
+    )
     return {"data": data_traces, "layout": graph_layout}
 
 
