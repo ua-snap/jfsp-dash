@@ -15,12 +15,15 @@ from dash.dependencies import Input, Output
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from luts import zones, scenarios, models, treatment_options
+from luts import zones, ecoregions, scenarios, models, treatment_options
 from gui import layout
 
 # Load data
 with open("total_area_burned.pickle", "rb") as handle:
     total_area_burned = pickle.load(handle)
+
+# Zones and ecoregions together for now
+zones = {**zones, **ecoregions}
 
 # TEMP todo remove this elsewhere downstream
 df = total_area_burned
@@ -32,7 +35,6 @@ application = app.server
 
 app.title = "JFSP"
 app.layout = layout
-
 
 @app.callback(
     Output("total_area_burned", "figure"),
@@ -107,7 +109,7 @@ def generate_total_area_burned(
                         "x": df["historical"]["rolling"].index.tolist(),
                         "y": df["historical"]["rolling"][zone],
                         "type": "bar",
-                        "name": "30yr rolling historical"
+                        "name": "30yr rolling historical",
                     }
                 ]
             )

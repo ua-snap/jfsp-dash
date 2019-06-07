@@ -6,10 +6,14 @@ User interface for Dash app.
 
 import dash_core_components as dcc
 import dash_html_components as html
-from luts import zones, scenarios, models, treatment_options
+from luts import zones, ecoregions, scenarios, models, treatment_options
+
+# Zones and ecoregions together for now
+zones = {**zones, **ecoregions}
 
 # Add additional keys for items exposed via gui
-zones["statewide"] = "Statewide"
+zones["statewide_EcoregionsLevel2"] = "statewide_EcoregionsLevel2"
+zones["statewide_FireManagementZones"] = "statewide_FireManagementZones"
 models["5modelavg"] = "5modelavg"
 
 navbar = html.Div(
@@ -61,7 +65,7 @@ historical_field = html.Div(
 zone_dropdown = dcc.Dropdown(
     id="zone",
     options=[{"label": zones[key], "value": key} for key in zones],
-    value="statewide",
+    value="FairbanksArea",
 )
 
 zone_dropdown_field = html.Div(
