@@ -230,8 +230,6 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
 veg_counts = veg_counts.append(temp_veg_dfs)
 
-import pdb
-
 # Statewide sums
 for spatial_prefix, regions in spatial_prefix_map.items():
     tidied = pd.DataFrame(index=historical_year_range)

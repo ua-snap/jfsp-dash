@@ -9,18 +9,22 @@ See preprocess.py for the data structure that this code assumes!
 """
 
 import pickle
+import pdb  # remove when done development
 from pprint import pprint
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
+import pandas as pd
 from luts import zones, ecoregions, scenarios, models, treatment_options
 from gui import layout
 
 # Load data
 with open("total_area_burned.pickle", "rb") as handle:
     total_area_burned = pickle.load(handle)
+
+veg_counts = pd.read_pickle("veg_counts.pickle")
 
 # Zones and ecoregions together for now
 zones = {**zones, **ecoregions}
@@ -35,6 +39,7 @@ application = app.server
 
 app.title = "JFSP"
 app.layout = layout
+
 
 @app.callback(
     Output("total_area_burned", "figure"),
@@ -119,6 +124,86 @@ def generate_total_area_burned(
         showlegend=True,
         xaxis={"title": "Year"},
         yaxis={"title": "Acres"},
+    )
+    return {"data": data_traces, "layout": graph_layout}
+
+
+@app.callback(
+    Output("veg_counts", "figure"),
+    inputs=[
+        Input("zone", "value"),
+        Input("historical_checkbox", "values"),
+        Input("scenarios_checklist", "values"),
+        Input("models_checklist", "values"),
+        Input("treatment_options_checklist", "values"),
+        Input("decadal_radio", "value"),
+    ],
+)
+def generate_veg_counts(
+    region, show_historical, scenarios, models, treatment_options, decadal_radio
+):
+    show_historical = "show_historical" in show_historical
+    data_traces = []
+
+    interval = "annual" if decadal_radio == "annual" else "decadal"
+
+    # Future!
+    for treatment in treatment_options:
+        for scenario in scenarios:
+            for model in models:
+                # pdb.set_trace()
+                vc = veg_counts.loc[
+                    (veg_counts["treatment"] == treatment)
+                    & (veg_counts["scenario"] == scenario)
+                    & (veg_counts["model"] == model)
+                    & (veg_counts["region"] == region)
+                ]
+                pprint(vc)
+                data_traces.extend(
+                    [
+                        {
+                            "x": vc.index.tolist(),
+                            "y": vc["deciduous"],
+                            "type": "bar",
+                            "name": "deciduous" + treatment + scenario + model,
+                        },
+                        {
+                            "x": vc.index.tolist(),
+                            "y": vc["coniferous"],
+                            "type": "bar",
+                            "name": "coniferous" + treatment + scenario + model,
+                        }
+                    ]
+                )
+
+    # Past!
+    if show_historical:
+        vc = veg_counts.loc[
+            (veg_counts["treatment"] == "cru_tx0")
+            & (veg_counts["region"] == region)
+        ]
+        data_traces.extend(
+            [
+                {
+                    "x": vc.index.tolist(),
+                    "y": vc["deciduous"],
+                    "type": "bar",
+                    "name": "historical deciduous",
+                },
+                {
+                    "x": vc.index.tolist(),
+                    "y": vc["coniferous"],
+                    "type": "bar",
+                    "name": "historical coniferous",
+                }
+            ]
+        )
+
+    graph_layout = go.Layout(
+        title="Coniferous, Deciduous Extent",
+        showlegend=True,
+        xaxis={"title": "Year"},
+        yaxis={"title": "KM^2 probably"},
     )
     return {"data": data_traces, "layout": graph_layout}
 

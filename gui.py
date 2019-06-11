@@ -140,6 +140,10 @@ graph_layout = html.Div(
     className="container", children=[dcc.Graph(id="total_area_burned")]
 )
 
+veg_graph_layout = html.Div(
+    className="container", children=[dcc.Graph(id="veg_counts")]
+)
+
 layout = html.Div(
     className="container",
     children=[
@@ -152,6 +156,7 @@ layout = html.Div(
         treatment_options_checklist_field,
         zone_dropdown_field,
         graph_layout,
+        veg_graph_layout,
         footer,
     ],
 )
