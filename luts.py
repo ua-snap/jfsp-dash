@@ -4,33 +4,33 @@ Lookup tables with key names and human-readable names
 # pylint: disable=C0103
 
 zones = {
-    "ChugachNationalForest": "ChugachNationalForest",
-    "CopperRiverArea": "CopperRiverArea",
-    "DeltaArea": "DeltaArea",
-    "FairbanksArea": "FairbanksArea",
-    "GalenaZone": "GalenaZone",
-    "KenaiKodiakArea": "KenaiKodiakArea",
-    "MatSuArea": "MatSuArea",
-    "MilitaryZone": "MilitaryZone",
-    "SouthwestArea": "SouthwestArea",
-    "TananaZone": "TananaZone",
-    "TokArea": "TokArea",
-    "UpperYukonZone": "UpperYukonZone",
+    "ChugachNationalForest": "Chugach National Forest",
+    "CopperRiverArea": "Copper River Area",
+    "DeltaArea": "Delta Area",
+    "FairbanksArea": "Fairbanks Area",
+    "GalenaZone": "Galena Zone",
+    "KenaiKodiakArea": "Kenai-Kodiak Area",
+    "MatSuArea": "Mat-Su Area",
+    "MilitaryZone": "Military Zone",
+    "SouthwestArea": "Southwest Area",
+    "TananaZone": "Tanana Zone",
+    "TokArea": "Tok Area",
+    "UpperYukonZone": "Upper Yukon Zone",
 }
 
 ecoregions = {
-    "AlaskaRangeTransition":"AlaskaRangeTransition",
-    "AleutianMeadows":"AleutianMeadows",
-    "ArcticTundra":"ArcticTundra",
-    "BeringTaiga":"BeringTaiga",
-    "BeringTundra":"BeringTundra",
-    "CoastalRainforests":"CoastalRainforests",
-    "CoastMountainsTransition":"CoastMountainsTransition",
-    "IntermontaneBoreal":"IntermontaneBoreal",
-    "PacificMountainsTransition":"PacificMountainsTransition"
+    "AlaskaRangeTransition":"Alaska Range Transition",
+    "AleutianMeadows":"Aleutian Meadows",
+    "ArcticTundra":"Arctic Tundra",
+    "BeringTaiga":"Bering Taiga",
+    "BeringTundra":"Bering Tundra",
+    "CoastalRainforests":"Coastal Rainforests",
+    "CoastMountainsTransition":"Coast Mountains Transition",
+    "IntermontaneBoreal":"Intermontane Boreal",
+    "PacificMountainsTransition":"Pacific Mountains Transition"
 }
 
-scenarios = {"rcp45": "rcp45", "rcp60": "rcp60", "rcp85": "rcp85"}
+scenarios = {"rcp45": "RCP 4.5", "rcp60": "RCP 6.0", "rcp85": "RCP 8.5"}
 
 models = {
     "CCSM4": "CCSM4",

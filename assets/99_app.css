@@ -13,3 +13,29 @@ h1, h2, h3, h4, h5, h6 {
 .control label.checkbox {
 	display: block;
 }
+
+.control label.checkbox input[type="checkbox"] {
+	display: inline-block;
+	margin-right: 1ex;
+	position: relative;
+	bottom: 1px;
+}
+
+.control .models_checklist label.checkbox:first-of-type {
+	font-weight: bold;
+}
+
+label.hidden {
+	display: none;
+}
+
+/* Pull together items that need it */
+.control.tight {
+	margin-top: -.75em;
+	padding-top: -.75em;
+}
+
+/* zone / region selection GUI element */
+#zone {
+	margin-bottom: 1.1em;
+}

@@ -14,7 +14,7 @@ zones = {**zones, **ecoregions}
 # Add additional keys for items exposed via gui
 zones["statewide_EcoregionsLevel2"] = "statewide_EcoregionsLevel2"
 zones["statewide_FireManagementZones"] = "statewide_FireManagementZones"
-models["5modelavg"] = "5modelavg"
+models["5modelavg"] = "5-Model Average"
 
 navbar = html.Div(
     className="navbar",
@@ -45,11 +45,13 @@ decadal_radio = dcc.RadioItems(
 )
 decadal_radio_field = html.Div(
     className="field",
-    children=[html.Label("Annual or decadal data?", className="label"), decadal_radio],
+    children=[html.Label("Annual or decadal data?", className="label hidden"), decadal_radio],
 )
 
 historical_checkbox = dcc.Checklist(
     id="historical_checkbox",
+    className="checkbox",
+    labelClassName="checkbox",
     options=[{"label": "Show historical", "value": "show_historical"}],
     values=[],
 )
@@ -57,8 +59,8 @@ historical_checkbox = dcc.Checklist(
 historical_field = html.Div(
     className="field",
     children=[
-        html.Label("Show historical model data?", className="label"),
-        html.Div(className="control", children=[historical_checkbox]),
+        html.Label("Show historical model data?", className="label hidden"),
+        html.Div(className="control tight", children=[historical_checkbox]),
     ],
 )
 
@@ -71,13 +73,15 @@ zone_dropdown = dcc.Dropdown(
 zone_dropdown_field = html.Div(
     className="field",
     children=[
-        html.Label("Area", className="label"),
+        html.Label("Area", className="label hidden"),
         html.Div(className="control", children=[zone_dropdown]),
     ],
 )
 
 scenarios_checklist = dcc.Checklist(
     id="scenarios_checklist",
+    className="checkbox",
+    labelClassName="checkbox",
     options=[{"label": scenarios[key], "value": key} for key in scenarios],
     values=["rcp60"],
 )
@@ -92,8 +96,10 @@ scenarios_checklist_field = html.Div(
 
 models_checklist = dcc.Checklist(
     id="models_checklist",
-    options=[{"label": models[key], "value": key} for key in models],
-    values=["CCSM4"],
+    labelClassName="checkbox",
+    className="models_checklist",
+    options=[{"label": models[key], "value": key} for key in sorted(models)],
+    values=["5modelavg"],
 )
 
 models_checklist_field = html.Div(
@@ -106,6 +112,7 @@ models_checklist_field = html.Div(
 
 treatment_options_checklist = dcc.Checklist(
     id="treatment_options_checklist",
+    labelClassName="checkbox",
     options=[
         {"label": treatment_options[key], "value": key} for key in treatment_options
     ],
@@ -148,15 +155,29 @@ layout = html.Div(
     className="container",
     children=[
         navbar,
-        html.H3("Total area burned", className="title is-3"),
-        decadal_radio_field,
-        historical_field,
-        scenarios_checklist_field,
-        models_checklist_field,
-        treatment_options_checklist_field,
-        zone_dropdown_field,
-        graph_layout,
-        veg_graph_layout,
-        footer,
+        html.Div(
+            className="columns",
+            children=[
+                html.Div(
+                    className="column is-one-quarter",
+                    children=[
+                        zone_dropdown_field,
+                        decadal_radio_field,
+                        historical_field,
+                        treatment_options_checklist_field,
+                        scenarios_checklist_field,
+                        models_checklist_field
+                    ]
+                ),
+                html.Div(
+                    className="column",
+                    children=[
+                        graph_layout,
+                        veg_graph_layout
+                    ]
+                )
+            ]
+        ),
+        footer
     ],
 )
