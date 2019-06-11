@@ -9,8 +9,6 @@ See preprocess.py for the data structure that this code assumes!
 """
 
 import pickle
-import pdb  # remove when done development
-from pprint import pprint
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
@@ -158,7 +156,6 @@ def generate_veg_counts(
                     & (veg_counts["model"] == model)
                     & (veg_counts["region"] == region)
                 ]
-                pprint(vc)
                 data_traces.extend(
                     [
                         {
