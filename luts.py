@@ -40,5 +40,6 @@ models = {
     "MRI-CGCM3": "MRI-CGCM3",
 }
 
+# Only future
 treatment_options = {"gcm_tx0":"Status quo", "gcm_tx1":"More FMO Full suppression", "gcm_tx2":"FMO Full suppression removed"}
 
