@@ -9,6 +9,10 @@ h1, h2, h3, h4, h5, h6 {
 	font-family: 'Open Sans';
 }
 
+._dash-undo-redo {
+	display: none;
+}
+
 /* We want vertical Checklists always. */
 .control label.checkbox {
 	display: block;
@@ -38,4 +42,9 @@ label.hidden {
 /* zone / region selection GUI element */
 #zone {
 	margin-bottom: 1.1em;
+}
+
+#total_area_burned, #veg_counts {
+	width: 70vw;
+	height: 50vh;
 }

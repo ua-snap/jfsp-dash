@@ -15,7 +15,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
-from luts import zones, ecoregions, scenarios, models, treatment_options
+import luts
 from gui import layout
 
 # Load data
@@ -23,9 +23,6 @@ with open("total_area_burned.pickle", "rb") as handle:
     total_area_burned = pickle.load(handle)
 
 veg_counts = pd.read_pickle("veg_counts.pickle")
-
-# Zones and ecoregions together for now
-zones = {**zones, **ecoregions}
 
 # TEMP todo remove this elsewhere downstream
 df = total_area_burned
@@ -53,6 +50,7 @@ app.layout = layout
 def generate_total_area_burned(
     zone, show_historical, scenarios, models, treatment_options, decadal_radio
 ):
+    """ Regenerate plot data for area burned """
     show_historical = "show_historical" in show_historical
     data_traces = []
 
@@ -72,7 +70,13 @@ def generate_total_area_burned(
                                 zone
                             ],
                             "type": "bar",
-                            "name": treatment + scenario + model,
+                            "name": ", ".join(
+                                [
+                                    luts.treatment_options[treatment],
+                                    luts.scenarios[scenario],
+                                    luts.models[model],
+                                ]
+                            ),
                         }
                     ]
                 )
@@ -88,7 +92,14 @@ def generate_total_area_burned(
                                     "rolling"
                                 ][zone],
                                 "type": "bar",
-                                "name": "30yr rolling " + treatment + scenario + model,
+                                "name": ", ".join(
+                                    [
+                                        "30yr rolling "
+                                        + luts.treatment_options[treatment],
+                                        luts.scenarios[scenario],
+                                        luts.models[model],
+                                    ]
+                                ),
                             }
                         ]
                     )
@@ -120,8 +131,10 @@ def generate_total_area_burned(
     graph_layout = go.Layout(
         title="Total area burned",
         showlegend=True,
+        legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
         yaxis={"title": "Acres"},
+        margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
 
@@ -160,15 +173,15 @@ def generate_veg_counts(
                     [
                         {
                             "x": vc.index.tolist(),
-                            "y": vc["deciduous"],
-                            "type": "bar",
-                            "name": "deciduous" + treatment + scenario + model,
-                        },
-                        {
-                            "x": vc.index.tolist(),
-                            "y": vc["coniferous"],
-                            "type": "bar",
-                            "name": "coniferous" + treatment + scenario + model,
+                            "y": vc["coniferous"] / vc["deciduous"],
+                            "type": "line",
+                            "name": ", ".join(
+                                [
+                                    luts.treatment_options[treatment],
+                                    luts.scenarios[scenario],
+                                    luts.models[model]
+                                ]
+                            )
                         }
                     ]
                 )
@@ -176,31 +189,26 @@ def generate_veg_counts(
     # Past!
     if show_historical:
         vc = veg_counts.loc[
-            (veg_counts["treatment"] == "cru_tx0")
-            & (veg_counts["region"] == region)
+            (veg_counts["treatment"] == "cru_tx0") & (veg_counts["region"] == region)
         ]
         data_traces.extend(
             [
                 {
                     "x": vc.index.tolist(),
-                    "y": vc["deciduous"],
-                    "type": "bar",
-                    "name": "historical deciduous",
-                },
-                {
-                    "x": vc.index.tolist(),
-                    "y": vc["coniferous"],
-                    "type": "bar",
-                    "name": "historical coniferous",
+                    "y": vc["deciduous"] / vc["coniferous"],
+                    "type": "line",
+                    "name": "Historical",
                 }
             ]
         )
 
     graph_layout = go.Layout(
-        title="Coniferous, Deciduous Extent",
+        title="Ratio of Coniferous to Deciduous, by area",
         showlegend=True,
+        legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "KM^2 probably"},
+        yaxis={"title": "Coniferous/Deciduous"},
+        margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
 

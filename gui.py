@@ -45,7 +45,10 @@ decadal_radio = dcc.RadioItems(
 )
 decadal_radio_field = html.Div(
     className="field",
-    children=[html.Label("Annual or decadal data?", className="label hidden"), decadal_radio],
+    children=[
+        html.Label("Annual or decadal data?", className="label hidden"),
+        decadal_radio,
+    ],
 )
 
 historical_checkbox = dcc.Checklist(
@@ -166,18 +169,15 @@ layout = html.Div(
                         historical_field,
                         treatment_options_checklist_field,
                         scenarios_checklist_field,
-                        models_checklist_field
-                    ]
+                        models_checklist_field,
+                    ],
                 ),
                 html.Div(
-                    className="column",
-                    children=[
-                        graph_layout,
-                        veg_graph_layout
-                    ]
-                )
-            ]
+                    className="column is-three-quarters",
+                    children=[graph_layout, veg_graph_layout],
+                ),
+            ],
         ),
-        footer
+        footer,
     ],
 )
