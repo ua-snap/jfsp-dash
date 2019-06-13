@@ -19,15 +19,15 @@ zones = {
 }
 
 ecoregions = {
-    "AlaskaRangeTransition":"Alaska Range Transition",
-    "AleutianMeadows":"Aleutian Meadows",
-    "ArcticTundra":"Arctic Tundra",
-    "BeringTaiga":"Bering Taiga",
-    "BeringTundra":"Bering Tundra",
-    "CoastalRainforests":"Coastal Rainforests",
-    "CoastMountainsTransition":"Coast Mountains Transition",
-    "IntermontaneBoreal":"Intermontane Boreal",
-    "PacificMountainsTransition":"Pacific Mountains Transition"
+    "AlaskaRangeTransition": "Alaska Range Transition",
+    "AleutianMeadows": "Aleutian Meadows",
+    "ArcticTundra": "Arctic Tundra",
+    "BeringTaiga": "Bering Taiga",
+    "BeringTundra": "Bering Tundra",
+    "CoastalRainforests": "Coastal Rainforests",
+    "CoastMountainsTransition": "Coast Mountains Transition",
+    "IntermontaneBoreal": "Intermontane Boreal",
+    "PacificMountainsTransition": "Pacific Mountains Transition",
 }
 
 scenarios = {"rcp45": "RCP 4.5", "rcp60": "RCP 6.0", "rcp85": "RCP 8.5"}
@@ -40,11 +40,11 @@ models = {
     "MRI-CGCM3": "MRI-CGCM3",
 }
 
-veg_types = {
-    "deciduous": "Deciduous",
-    "coniferous": "Coniferous"
-}
+veg_types = {"deciduous": "Deciduous", "coniferous": "Coniferous"}
 
 # Only future
-treatment_options = {"gcm_tx0":"Status quo", "gcm_tx1":"More FMO Full suppression", "gcm_tx2":"FMO Full suppression removed"}
-
+treatment_options = {
+    "gcm_tx0": "No change (TX0)",
+    "gcm_tx1": "More Full Suppression (TX1)",
+    "gcm_tx2": "No Full Suppression (TX2)",
+}
