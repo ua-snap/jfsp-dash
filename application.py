@@ -102,10 +102,12 @@ def generate_total_area_burned(
                     ]
                 )
                 rolling = merged.rolling(rolling_slider, center=True).mean()
+                rolling_std = merged.rolling(rolling_slider, center=True).std()
 
                 # Trim if not also showing historical values
                 if not show_historical:
                     rolling = rolling.loc[2014:2099]
+                    rolling_std = rolling_std.loc[2014:2099]
 
                 if interval == "annual":
                     data_traces.extend(
@@ -113,12 +115,25 @@ def generate_total_area_burned(
                             {
                                 "x": rolling.index.tolist(),
                                 "y": rolling,
-                                "type": "bar",
-                                "barmode": barmode,
+                                "type": "line",
                                 "name": ", ".join(
                                     [
                                         str(rolling_slider)
                                         + "yr rolling average "
+                                        + luts.treatment_options[treatment],
+                                        luts.scenarios[scenario],
+                                        luts.models[model],
+                                    ]
+                                ),
+                            },
+                            {
+                                "x": rolling_std.index.tolist(),
+                                "y": rolling_std,
+                                "type": "line",
+                                "name": ", ".join(
+                                    [
+                                        str(rolling_slider)
+                                        + "yr rolling average standard deviation"
                                         + luts.treatment_options[treatment],
                                         luts.scenarios[scenario],
                                         luts.models[model],
