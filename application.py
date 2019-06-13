@@ -56,6 +56,11 @@ def generate_total_area_burned(
 
     interval = "annual" if decadal_radio == "annual" else "decadal"
 
+    # Stack the bar for the 2010s only when it's historical/decadal
+    barmode = "group"
+    if show_historical and interval == "decadal":
+        barmode = "stack"
+
     # Future!
     for treatment in treatment_options:
         for scenario in scenarios:
@@ -70,6 +75,7 @@ def generate_total_area_burned(
                                 zone
                             ],
                             "type": "bar",
+                            "barmode": barmode,
                             "name": ", ".join(
                                 [
                                     luts.treatment_options[treatment],
@@ -81,17 +87,26 @@ def generate_total_area_burned(
                     ]
                 )
 
+                merged = pd.concat(
+                    [
+                        df["historical"]["annual"][zone],
+                        df["future"][treatment][scenario][model]["annual"][zone],
+                    ]
+                )
+                rolling = merged.rolling(30, center=True).mean()
+
+                # Trim if not also showing historical values
+                if not show_historical:
+                    rolling = rolling.loc[2014:2099]
+
                 if interval == "annual":
                     data_traces.extend(
                         [
                             {
-                                "x": df["future"][treatment][scenario][model][
-                                    "rolling"
-                                ].index.tolist(),
-                                "y": df["future"][treatment][scenario][model][
-                                    "rolling"
-                                ][zone],
+                                "x": rolling.index.tolist(),
+                                "y": rolling,
                                 "type": "bar",
+                                "barmode": barmode,
                                 "name": ", ".join(
                                     [
                                         "30yr rolling "
@@ -112,28 +127,19 @@ def generate_total_area_burned(
                     "x": df["historical"][interval].index.tolist(),
                     "y": df["historical"][interval][zone],
                     "type": "bar",
+                    "barmode": barmode,
                     "name": "historical",
                 }
             ]
         )
-        if interval == "annual":
-            data_traces.extend(
-                [
-                    {
-                        "x": df["historical"]["rolling"].index.tolist(),
-                        "y": df["historical"]["rolling"][zone],
-                        "type": "bar",
-                        "name": "30yr rolling historical",
-                    }
-                ]
-            )
 
     graph_layout = go.Layout(
         title="Total area burned",
         showlegend=True,
+        barmode=barmode,
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "Acres"},
+        yaxis={"title": "Acres", "type": "log"},
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
@@ -162,7 +168,6 @@ def generate_veg_counts(
     for treatment in treatment_options:
         for scenario in scenarios:
             for model in models:
-                # pdb.set_trace()
                 vc = veg_counts.loc[
                     (veg_counts["treatment"] == treatment)
                     & (veg_counts["scenario"] == scenario)
@@ -179,9 +184,9 @@ def generate_veg_counts(
                                 [
                                     luts.treatment_options[treatment],
                                     luts.scenarios[scenario],
-                                    luts.models[model]
+                                    luts.models[model],
                                 ]
-                            )
+                            ),
                         }
                     ]
                 )
@@ -195,7 +200,7 @@ def generate_veg_counts(
             [
                 {
                     "x": vc.index.tolist(),
-                    "y": vc["deciduous"] / vc["coniferous"],
+                    "y": vc["coniferous"] / vc["deciduous"],
                     "type": "line",
                     "name": "Historical",
                 }

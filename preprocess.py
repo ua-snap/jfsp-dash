@@ -24,7 +24,6 @@ date_postfix = "2014_2099"
 historical_date_postfix = "1950_2013"
 historical_categories = ["cru_none", "cru_tx0"]
 
-rolling_window = 30  # years for rolling window computations
 total_area_burned = {}
 
 
@@ -161,7 +160,8 @@ veg_counts = pd.DataFrame(columns=veg_columns)
 temp_veg_dfs = []
 historical_year_range = pd.RangeIndex(start=1950, stop=2014)
 future_year_range = pd.RangeIndex(start=2014, stop=2100)
-# Historical
+
+# Process counts for all historical/modelled data
 for spatial_prefix, regions in spatial_prefix_map.items():
     # Historical
     for region in regions:
@@ -230,6 +230,9 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
 veg_counts = veg_counts.append(temp_veg_dfs)
 
+models_with_statewide = models.copy()
+models_with_statewide.update({"5modelavg": "5modelavg"})
+
 # Statewide sums
 for spatial_prefix, regions in spatial_prefix_map.items():
     tidied = pd.DataFrame(index=historical_year_range)
@@ -248,7 +251,7 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
     for treatment in treatment_options:
         for scenario in scenarios:
-            for model in models:
+            for model in models_with_statewide:
                 tidied = pd.DataFrame(index=future_year_range)
                 tidied = tidied.assign(
                     treatment=treatment,
@@ -276,14 +279,12 @@ veg_counts.to_csv("./veg_counts.csv")
 total_area_burned, decadal_area_burned
     historical
         annual: DataFrame(cols = zones)
-        rolling: DataFrame(cols = zones)
         decadal: DataFrame(cols = zones)
     future
         treatment
             scenario
                 model
                     annual: DataFrame(cols = zones)
-                    rolling: DataFrame(cols = zones)
                     decadal: DataFrame(cols = zones)
 
 """
@@ -291,7 +292,6 @@ total_area_burned, decadal_area_burned
 # Compute total area burned (historical)
 total_area_burned["historical"] = {
     "annual": pd.DataFrame(),
-    "rolling": pd.DataFrame(),
     "decadal": pd.DataFrame(),
 }
 total_area_burned["future"] = {}
@@ -327,11 +327,6 @@ for spatial_prefix, regions in spatial_prefix_map.items():
             .groupby(total_area_burned["historical"]["annual"][zone].index // 10 * 10)
             .mean()
         )
-        total_area_burned["historical"]["rolling"][zone] = (
-            total_area_burned["historical"]["annual"][zone]
-            .rolling(rolling_window)
-            .mean()
-        )
 
     statewide_name = "statewide_" + spatial_prefix
     total_area_burned["historical"]["annual"][statewide_name] = total_area_burned[
@@ -342,11 +337,6 @@ for spatial_prefix, regions in spatial_prefix_map.items():
         .groupby(
             total_area_burned["historical"]["annual"][statewide_name].index // 10 * 10
         )
-        .mean()
-    )
-    total_area_burned["historical"]["rolling"][statewide_name] = (
-        total_area_burned["historical"]["annual"][statewide_name]
-        .rolling(rolling_window)
         .mean()
     )
 
@@ -362,7 +352,6 @@ for spatial_prefix, regions in spatial_prefix_map.items():
                 if needs_init:
                     total_area_burned["future"][treatment][scenario][model] = {
                         "annual": pd.DataFrame(),
-                        "rolling": pd.DataFrame(),
                         "decadal": pd.DataFrame(),
                     }
 
@@ -387,16 +376,6 @@ for spatial_prefix, regions in spatial_prefix_map.items():
                     total_area_burned["future"][treatment][scenario][model]["annual"][
                         zone
                     ] = to_acres(source_data.mean(axis=1))
-                    # Rolling mean
-                    total_area_burned["future"][treatment][scenario][model]["rolling"][
-                        zone
-                    ] = (
-                        total_area_burned["future"][treatment][scenario][model][
-                            "annual"
-                        ][zone]
-                        .rolling(rolling_window)
-                        .mean()
-                    )
 
                     # Decadal mean
                     total_area_burned["future"][treatment][scenario][model]["decadal"][
@@ -431,21 +410,11 @@ for spatial_prefix, regions in spatial_prefix_map.items():
                 ].sum(
                     axis=1
                 )
-                total_area_burned["future"][treatment][scenario][model]["rolling"][
-                    statewide_name
-                ] = (
-                    total_area_burned["future"][treatment][scenario][model]["annual"][
-                        statewide_name
-                    ]
-                    .rolling(rolling_window)
-                    .mean()
-                )
 
             # Compute 5-model averages
             if needs_init:
                 total_area_burned["future"][treatment][scenario]["5modelavg"] = {
                     "annual": pd.DataFrame(),
-                    "rolling": pd.DataFrame(),
                     "decadal": pd.DataFrame(),
                 }
 
@@ -481,15 +450,6 @@ for spatial_prefix, regions in spatial_prefix_map.items():
                     .mean()
                 )
 
-                total_area_burned["future"][treatment][scenario]["5modelavg"][
-                    "rolling"
-                ][zone] = (
-                    total_area_burned["future"][treatment][scenario]["5modelavg"][
-                        "annual"
-                    ][zone]
-                    .rolling(rolling_window)
-                    .mean()
-                )
     needs_init = False
 
 with open("total_area_burned.pickle", "wb") as handle:
