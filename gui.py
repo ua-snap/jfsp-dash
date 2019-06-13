@@ -113,6 +113,25 @@ models_checklist_field = html.Div(
     ],
 )
 
+rolling_window_slider = dcc.Slider(
+    className="", id="rolling_slider", min=1, max=40, step=1, value=30,
+    marks={
+        1: "1",
+        10: "10",
+        20: "20",
+        30: "30",
+        40: "40",
+    },
+)
+
+rolling_window_slider_field = html.Div(
+    className="field rolling-window",
+    children=[
+        html.Label("Rolling average window", className="label"),
+        html.Div(className="control", children=[rolling_window_slider]),
+    ],
+)
+
 treatment_options_checklist = dcc.Checklist(
     id="treatment_options_checklist",
     labelClassName="checkbox",
@@ -167,6 +186,7 @@ layout = html.Div(
                         zone_dropdown_field,
                         decadal_radio_field,
                         historical_field,
+                        rolling_window_slider_field,
                         treatment_options_checklist_field,
                         scenarios_checklist_field,
                         models_checklist_field,

@@ -12,6 +12,7 @@ import pickle
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
+import dash_core_components
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
@@ -45,10 +46,17 @@ app.layout = layout
         Input("models_checklist", "values"),
         Input("treatment_options_checklist", "values"),
         Input("decadal_radio", "value"),
+        Input("rolling_slider", "value"),
     ],
 )
 def generate_total_area_burned(
-    zone, show_historical, scenarios, models, treatment_options, decadal_radio
+    zone,
+    show_historical,
+    scenarios,
+    models,
+    treatment_options,
+    decadal_radio,
+    rolling_slider,
 ):
     """ Regenerate plot data for area burned """
     show_historical = "show_historical" in show_historical
@@ -93,7 +101,7 @@ def generate_total_area_burned(
                         df["future"][treatment][scenario][model]["annual"][zone],
                     ]
                 )
-                rolling = merged.rolling(30, center=True).mean()
+                rolling = merged.rolling(rolling_slider, center=True).mean()
 
                 # Trim if not also showing historical values
                 if not show_historical:
@@ -109,7 +117,8 @@ def generate_total_area_burned(
                                 "barmode": barmode,
                                 "name": ", ".join(
                                     [
-                                        "30yr rolling "
+                                        str(rolling_slider)
+                                        + "yr rolling average "
                                         + luts.treatment_options[treatment],
                                         luts.scenarios[scenario],
                                         luts.models[model],

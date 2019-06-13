@@ -48,3 +48,8 @@ label.hidden {
 	width: 70vw;
 	height: 50vh;
 }
+
+.field.rolling-window {
+	margin-bottom: 2em;
+
+}
