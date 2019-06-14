@@ -114,14 +114,13 @@ models_checklist_field = html.Div(
 )
 
 rolling_window_slider = dcc.Slider(
-    className="", id="rolling_slider", min=1, max=40, step=1, value=30,
-    marks={
-        1: "1",
-        10: "10",
-        20: "20",
-        30: "30",
-        40: "40",
-    },
+    className="",
+    id="rolling_slider",
+    min=1,
+    max=40,
+    step=1,
+    value=30,
+    marks={1: "1", 10: "10", 20: "20", 30: "30", 40: "40"},
 )
 
 rolling_window_slider_field = html.Div(
@@ -178,26 +177,35 @@ layout = html.Div(
     children=[
         navbar,
         html.Div(
-            className="columns",
+            className="sticky",
             children=[
                 html.Div(
-                    className="column is-one-quarter",
+                    className="columns",
                     children=[
-                        zone_dropdown_field,
-                        decadal_radio_field,
-                        historical_field,
-                        rolling_window_slider_field,
-                        treatment_options_checklist_field,
-                        scenarios_checklist_field,
-                        models_checklist_field,
+                        html.Div(
+                            className="column is-one-third",
+                            children=[
+                                zone_dropdown_field,
+                                decadal_radio_field,
+                                historical_field,
+                                rolling_window_slider_field,
+                            ],
+                        ),
+                        html.Div(
+                            className="column is-one-third",
+                            children=[
+                                treatment_options_checklist_field,
+                                scenarios_checklist_field,
+                            ],
+                        ),
+                        html.Div(
+                            className="column is-one-third", children=[models_checklist_field]
+                        ),
                     ],
-                ),
-                html.Div(
-                    className="column is-three-quarters",
-                    children=[graph_layout, veg_graph_layout],
                 ),
             ],
         ),
+        html.Div(className="", children=[graph_layout, veg_graph_layout]),
         footer,
     ],
 )

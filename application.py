@@ -234,7 +234,12 @@ def generate_veg_counts(
     graph_layout = go.Layout(
         title="Ratio of Coniferous to Deciduous, by area",
         showlegend=True,
-        legend={"font": {"family": "Open Sans", "size": 10}},
+        legend={
+            "font": {
+                "family": "Open Sans",
+                "size": 10
+            }
+        },
         xaxis={"title": "Year"},
         yaxis={"title": "Coniferous/Deciduous"},
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},

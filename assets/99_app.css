@@ -9,6 +9,11 @@ h1, h2, h3, h4, h5, h6 {
 	font-family: 'Open Sans';
 }
 
+/* Override a Bulma default here */
+.label:not(:last-child) {
+	margin-bottom: 0;
+}
+
 ._dash-undo-redo {
 	display: none;
 }
@@ -45,11 +50,19 @@ label.hidden {
 }
 
 #total_area_burned, #veg_counts {
-	width: 70vw;
-	height: 50vh;
+	width: 100%;
+	height: 60vh;
 }
 
 .field.rolling-window {
 	margin-bottom: 2em;
 
+}
+
+.sticky {
+	position: -webkit-sticky;
+	position: sticky;
+	top: 0;
+	background: #fff;
+	z-index: 5000;
 }
