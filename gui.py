@@ -165,11 +165,15 @@ This is a page footer, where we'd put legal notes and other items.
 )
 
 graph_layout = html.Div(
-    className="container", children=[dcc.Graph(id="total_area_burned")]
+    className="graph", children=[dcc.Graph(id="total_area_burned")]
 )
 
 veg_graph_layout = html.Div(
-    className="container", children=[dcc.Graph(id="veg_counts")]
+    className="graph", children=[dcc.Graph(id="veg_counts")]
+)
+
+costs_graph_layout = html.Div(
+    className="graph", children=[dcc.Graph(id="costs")]
 )
 
 layout = html.Div(
@@ -205,7 +209,7 @@ layout = html.Div(
                 ),
             ],
         ),
-        html.Div(className="", children=[graph_layout, veg_graph_layout]),
+        html.Div(className="graphs", children=[graph_layout, veg_graph_layout, costs_graph_layout]),
         footer,
     ],
 )

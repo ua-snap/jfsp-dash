@@ -1,6 +1,9 @@
 # Do not add source data files
 data/*
 
+# Ignore scratchfile CSVs
+*.csv
+
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml

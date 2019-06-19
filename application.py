@@ -1,4 +1,4 @@
-# pylint: disable=C0103,E0401
+# pylint: disable=C0103,E0401,R0913,C0330
 """
 JFSP app.
 
@@ -8,24 +8,19 @@ See preprocess.py for the data structure that this code assumes!
 
 """
 
-import pickle
+from pprint import pprint
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
-import dash_core_components
-import dash_core_components as dcc
-import dash_html_components as html
 import pandas as pd
 import luts
 from gui import layout
 
-# Load data
-with open("total_area_burned.pickle", "rb") as handle:
-    total_area_burned = pickle.load(handle)
-
+total_area_burned = pd.read_pickle("total_area_burned.pickle")
 veg_counts = pd.read_pickle("veg_counts.pickle")
+costs = pd.read_pickle("costs.pickle")
 
-# TEMP todo remove this elsewhere downstream
+# TODO FIXME ETC RAWR TEMP todo remove this elsewhere downstream
 df = total_area_burned
 
 app = dash.Dash(__name__)
@@ -139,7 +134,7 @@ def generate_total_area_burned(
                                         luts.models[model],
                                     ]
                                 ),
-                            }
+                            },
                         ]
                     )
 
@@ -185,8 +180,6 @@ def generate_veg_counts(
 ):
     show_historical = "show_historical" in show_historical
     data_traces = []
-
-    interval = "annual" if decadal_radio == "annual" else "decadal"
 
     # Future!
     for treatment in treatment_options:
@@ -234,14 +227,75 @@ def generate_veg_counts(
     graph_layout = go.Layout(
         title="Ratio of Coniferous to Deciduous, by area",
         showlegend=True,
-        legend={
-            "font": {
-                "family": "Open Sans",
-                "size": 10
-            }
-        },
+        legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
         yaxis={"title": "Coniferous/Deciduous"},
+        margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
+    )
+    return {"data": data_traces, "layout": graph_layout}
+
+@app.callback(
+    Output("costs", "figure"),
+    inputs=[
+        Input("historical_checkbox", "values"),
+        Input("scenarios_checklist", "values"),
+        Input("models_checklist", "values"),
+        Input("treatment_options_checklist", "values"),
+        Input("decadal_radio", "value"),
+    ],
+)
+def generate_costs(
+    show_historical, scenarios, models, treatment_options, decadal_radio
+):
+    """ Generate costs graph """
+    show_historical = "show_historical" in show_historical
+    data_traces = []
+
+    if show_historical:
+        for option in luts.fmo_options:
+            hc = costs.loc[
+                (costs["treatment"] == "cru_tx0") & (costs["option"] == option)
+            ]
+            data_traces.extend(
+                [
+                    {
+                        "x": hc.index.tolist(),
+                        "y": hc["cost"],
+                        "type": "bar",
+                        "name": "Historical " + luts.fmo_options[option],
+                    }
+                ]
+            )
+
+    for treatment in treatment_options:
+        for scenario in scenarios:
+            for model in models:
+                for option in luts.fmo_options:
+                    hc = costs.loc[
+                        (costs["treatment"] == treatment) &
+                        (costs["scenario"] == scenario) &
+                        (costs["model"] == model) &
+                        (costs["option"] == option)
+                    ]
+                    pprint(hc)
+                    data_traces.extend(
+                        [
+                            {
+                                "x": hc.index.tolist(),
+                                "y": hc["cost"],
+                                "type": "bar",
+                                "name": treatment + scenario + model + luts.fmo_options[option],
+                            }
+                        ]
+                    )
+
+    graph_layout = go.Layout(
+        title="Costs by Fire Management Option",
+        barmode="stack",
+        showlegend=True,
+        legend={"font": {"family": "Open Sans", "size": 10}},
+        xaxis={"title": "Year"},
+        yaxis={"title": "Cost ($)"},
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
