@@ -20,12 +20,9 @@ zones = {
 
 ecoregions = {
     "AlaskaRangeTransition": "Alaska Range Transition",
-    "AleutianMeadows": "Aleutian Meadows",
     "ArcticTundra": "Arctic Tundra",
     "BeringTaiga": "Bering Taiga",
     "BeringTundra": "Bering Tundra",
-    "CoastalRainforests": "Coastal Rainforests",
-    "CoastMountainsTransition": "Coast Mountains Transition",
     "IntermontaneBoreal": "Intermontane Boreal",
     "PacificMountainsTransition": "Pacific Mountains Transition",
 }
