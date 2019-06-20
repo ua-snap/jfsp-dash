@@ -6,20 +6,21 @@ be easily used by JFSP app.
 """
 
 # pylint: disable=invalid-name,import-error,line-too-long
+# FIXME remove these lint checks and see what happens
 # pylint: disable=W0621,W0105
 
 import os
-import pickle
-import pdb
-from pprint import pprint
 import numpy as np
 import pandas as pd
-from luts import zones, scenarios, models, treatment_options, ecoregions, fmo_options, fmo_costs
+import luts
 
 data_dir = "data"
 
 # Some static stuff we glue to make filenames
-spatial_prefix_map = {"EcoregionsLevel2": ecoregions, "FireManagementZones": zones}
+spatial_prefix_map = {
+    "EcoregionsLevel2": luts.ecoregions,
+    "FireManagementZones": luts.zones,
+}
 
 fmo_prefix = "fmo99s95i"
 historical_fmo_prefix = "fmo99s95i_historical_CRU32"
@@ -28,7 +29,8 @@ historical_date_postfix = "1950_2013"
 historical_categories = ["cru_none", "cru_tx0"]
 historical_year_range = pd.RangeIndex(start=1950, stop=2014)
 future_year_range = pd.RangeIndex(start=2014, stop=2100)
-random_seed = 42 # random seed for reproducible random numbers
+random_seed = 42  # random seed for reproducible random numbers
+
 
 def to_acres(km2):
     """ square KM to acres """
@@ -54,6 +56,7 @@ random_cost_map = pd.DataFrame(index=pd.RangeIndex(start=1950, stop=2100))
 np.random.seed(random_seed)
 random_cost_map["year"] = np.random.randint(2011, 2018, random_cost_map.shape[0])
 random_cost_map.to_csv("random_year_map.csv")
+
 
 def get_cost_filename(treatment, scenario, model, option):
     """
@@ -91,6 +94,7 @@ def get_cost_filename(treatment, scenario, model, option):
         filename,
     )
     return input_file
+
 
 def compute_row_cost(row):
     """
@@ -176,11 +180,12 @@ year (index), treatment, scenario, RCP, Region, DeciduousArea, ConiferousArea
 forest_types = ["Deciduous", "BlackSpruce", "WhiteSpruce"]
 veg_columns = ["treatment", "scenario", "model", "region", "deciduous", "coniferous"]
 
+
 def get_veg_filename(spatial_prefix, treatment, scenario, model, region, forest):
     """
     Returns the filename for a given place/zone/forest type.
     """
-    if scenario is "historical":
+    if scenario == "historical":
         return os.path.join(
             data_dir,
             spatial_prefix,
@@ -309,9 +314,9 @@ for spatial_prefix, regions in spatial_prefix_map.items():
         )
 
     # Future
-    for treatment in treatment_options:
-        for scenario in scenarios:
-            for model in models:
+    for treatment in luts.treatment_options:
+        for scenario in luts.scenarios:
+            for model in luts.models:
                 for region in regions:
                     temp_veg_dfs.append(
                         get_tidied_veg_count_df(
@@ -330,8 +335,8 @@ veg_counts.index.name = "year"
 # Compute 5-model averages
 temp_veg_dfs = []
 for spatial_prefix, regions in spatial_prefix_map.items():
-    for treatment in treatment_options:
-        for scenario in scenarios:
+    for treatment in luts.treatment_options:
+        for scenario in luts.scenarios:
             for region in regions:
                 tidied = pd.DataFrame(index=future_year_range)
                 tidied = tidied.assign(
@@ -362,7 +367,7 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
 veg_counts = veg_counts.append(temp_veg_dfs)
 
-models_with_statewide = models.copy()
+models_with_statewide = luts.models.copy()
 models_with_statewide.update({"5modelavg": "5modelavg"})
 
 # Statewide sums
@@ -381,8 +386,8 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
     veg_counts = veg_counts.append(tidied)
 
-    for treatment in treatment_options:
-        for scenario in scenarios:
+    for treatment in luts.treatment_options:
+        for scenario in luts.scenarios:
             for model in models_with_statewide:
                 tidied = pd.DataFrame(index=future_year_range)
                 tidied = tidied.assign(
@@ -472,13 +477,13 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
     # Compute total area burned (future)
 
-    for treatment in treatment_options:
+    for treatment in luts.treatment_options:
         if needs_init:
             total_area_burned["future"][treatment] = {}
-        for scenario in scenarios:
+        for scenario in luts.scenarios:
             if needs_init:
                 total_area_burned["future"][treatment][scenario] = {}
-            for model in models:
+            for model in luts.models:
                 if needs_init:
                     total_area_burned["future"][treatment][scenario][model] = {
                         "annual": pd.DataFrame(),
@@ -554,7 +559,7 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
             for zone in regions_with_statewide:
                 model_averages = pd.DataFrame()
-                for model in models:
+                for model in luts.models:
                     model_averages[model] = total_area_burned["future"][treatment][
                         scenario
                     ][model]["annual"][zone]
@@ -582,5 +587,4 @@ for spatial_prefix, regions in spatial_prefix_map.items():
 
     needs_init = False
 
-with open("total_area_burned.pickle", "wb") as handle:
-    pickle.dump(total_area_burned, handle)
+total_area_burned.to_pickle("total_area_burned.pickle")
