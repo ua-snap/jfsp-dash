@@ -1,4 +1,4 @@
-# pylint: disable=C0103,E0401,R0913,C0330
+# pylint: disable=C0103,E0401,R0913,C0330,too-many-locals
 """
 JFSP app.
 
@@ -19,9 +19,6 @@ from gui import layout
 total_area_burned = pd.read_pickle("total_area_burned.pickle")
 veg_counts = pd.read_pickle("veg_counts.pickle")
 costs = pd.read_pickle("costs.pickle")
-
-# TODO FIXME ETC RAWR TEMP todo remove this elsewhere downstream
-df = total_area_burned
 
 app = dash.Dash(__name__)
 # AWS Elastic Beanstalk looks for application by default,
@@ -71,10 +68,10 @@ def generate_total_area_burned(
                 data_traces.extend(
                     [
                         {
-                            "x": df["future"][treatment][scenario][model][
+                            "x": total_area_burned["future"][treatment][scenario][model][
                                 interval
                             ].index.tolist(),
-                            "y": df["future"][treatment][scenario][model][interval][
+                            "y": total_area_burned["future"][treatment][scenario][model][interval][
                                 zone
                             ],
                             "type": "bar",
@@ -92,8 +89,8 @@ def generate_total_area_burned(
 
                 merged = pd.concat(
                     [
-                        df["historical"]["annual"][zone],
-                        df["future"][treatment][scenario][model]["annual"][zone],
+                        total_area_burned["historical"]["annual"][zone],
+                        total_area_burned["future"][treatment][scenario][model]["annual"][zone],
                     ]
                 )
                 rolling = merged.rolling(rolling_slider, center=True).mean()
@@ -143,8 +140,8 @@ def generate_total_area_burned(
         data_traces.extend(
             [
                 {
-                    "x": df["historical"][interval].index.tolist(),
-                    "y": df["historical"][interval][zone],
+                    "x": total_area_burned["historical"][interval].index.tolist(),
+                    "y": total_area_burned["historical"][interval][zone],
                     "type": "bar",
                     "barmode": barmode,
                     "name": "historical",
