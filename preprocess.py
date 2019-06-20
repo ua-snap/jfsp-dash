@@ -103,13 +103,14 @@ def compute_row_cost(row):
     map to a prior year of known costs.
     """
     mapped_year = random_cost_map.loc[row.name].year
-    cost_factor = fmo_costs[mapped_year][row.option]
+    cost_factor = luts.fmo_costs[mapped_year][row.option]
     return round(row.area * cost_factor)
+
 
 def get_cost_df(year_range, treatment, scenario, model):
     """ Return a clean dataframe of costs """
     tidied_costs = []
-    for option in fmo_options:
+    for option in luts.fmo_options:
         filename = get_cost_filename(treatment, scenario, model, option)
         if os.path.isfile(filename):
             tidied = pd.DataFrame(index=year_range)
@@ -117,10 +118,8 @@ def get_cost_df(year_range, treatment, scenario, model):
                 treatment=treatment, scenario=scenario, model=model, option=option
             )
             temp_costs = pd.read_csv(filename, index_col=0)
-            reps_mean = temp_costs.mean(axis=1) # compute mean of reps
-            tidied = tidied.assign(
-                area=reps_mean
-            )
+            reps_mean = temp_costs.mean(axis=1)  # compute mean of reps
+            tidied = tidied.assign(area=reps_mean)
             tidied["cost"] = tidied.apply(compute_row_cost, axis=1)
             tidied_costs.append(tidied)
         else:
@@ -129,37 +128,44 @@ def get_cost_df(year_range, treatment, scenario, model):
 
     return tidied_costs
 
+
 # Historical
 costs = costs.append(get_cost_df(historical_year_range, "cru_tx0", "historical", ""))
 
 # Future
-for treatment in treatment_options:
-    for scenario in scenarios:
-        for model in models:
-            costs = costs.append(get_cost_df(future_year_range, treatment, scenario, model))
+for treatment in luts.treatment_options:
+    for scenario in luts.scenarios:
+        for model in luts.models:
+            costs = costs.append(
+                get_cost_df(future_year_range, treatment, scenario, model)
+            )
 
 # Compute 5-model averages
 costs.index.name = "year"
-for treatment in treatment_options:
-    for scenario in scenarios:
-        for model in models:
-            for option in fmo_options:
-                tidied = pd.DataFrame(index=future_year_range)
-                tidied.index.name = "year"
-                tidied = tidied.assign(
-                    treatment=treatment, scenario=scenario, model="5modelavg", option=option
-                )
-                temp_costs_column = costs[
+for treatment in luts.treatment_options:
+    for scenario in luts.scenarios:
+        for option in luts.fmo_options:
+            tidied = pd.DataFrame(index=future_year_range)
+            tidied.index.name = "year"
+            tidied = tidied.assign(
+                treatment=treatment, scenario=scenario, model="5modelavg", option=option
+            )
+            temp_costs_column = (
+                costs[
                     (costs.treatment == treatment)
                     & (costs.scenario == scenario)
                     & (costs.option == option)
-                ].groupby("year").mean()["area"]
-                tidied["area"] = temp_costs_column
-                tidied["cost"] = tidied.apply(compute_row_cost, axis=1)
-                costs = costs.append(tidied)
+                ]
+                .groupby("year")
+                .mean()["area"]
+            )
+            tidied["area"] = temp_costs_column
+            tidied["cost"] = tidied.apply(compute_row_cost, axis=1)
+            costs = costs.append(tidied)
 
 costs.to_csv("costs.csv")
 costs.to_pickle("costs.pickle")
+exit()
 
 """ Veg counts: data structure definition
 
