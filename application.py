@@ -114,7 +114,7 @@ def generate_total_area_burned(
                                 "name": ", ".join(
                                     [
                                         str(rolling_slider)
-                                        + "yr rolling average "
+                                        + "yr avg "
                                         + luts.treatment_options[treatment],
                                         luts.scenarios[scenario],
                                         luts.models[model],
@@ -128,7 +128,7 @@ def generate_total_area_burned(
                                 "name": ", ".join(
                                     [
                                         str(rolling_slider)
-                                        + "yr rolling average standard deviation"
+                                        + "yr avg std"
                                         + luts.treatment_options[treatment],
                                         luts.scenarios[scenario],
                                         luts.models[model],
