@@ -12,8 +12,7 @@ from luts import zones, ecoregions, scenarios, models, treatment_options
 zones = {**zones, **ecoregions}
 
 # Add additional keys for items exposed via gui
-zones["statewide_EcoregionsLevel2"] = "statewide_EcoregionsLevel2"
-zones["statewide_FireManagementZones"] = "statewide_FireManagementZones"
+zones["statewide_FireManagementZones"] = "Full Model Extent"
 models["5modelavg"] = "5-Model Average"
 
 navbar = html.Div(
@@ -70,7 +69,7 @@ historical_field = html.Div(
 zone_dropdown = dcc.Dropdown(
     id="zone",
     options=[{"label": zones[key], "value": key} for key in zones],
-    value="FairbanksArea",
+    value="statewide_FireManagementZones",
 )
 
 zone_dropdown_field = html.Div(
