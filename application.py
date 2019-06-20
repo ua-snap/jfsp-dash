@@ -291,7 +291,6 @@ def generate_costs(
 
     graph_layout = go.Layout(
         title="Costs by Fire Management Option",
-        barmode="stack",
         showlegend=True,
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
