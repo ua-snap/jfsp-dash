@@ -1,7 +1,34 @@
 """
 Lookup tables with key names and human-readable names
 """
-# pylint: disable=C0103
+# pylint: disable=C0103,import-error
+
+# Fragments used in the data preprocessing scripts.
+import pandas as pd
+import math
+STATEWIDE = "AllFMZs"
+MODEL_AVG = "5modelavg"
+fmo_prefix = "fmo99s95i"
+historical_fmo_prefix = "fmo99s95i_historical_CRU32"
+date_postfix = "2014_2099"
+historical_date_postfix = "1950_2013"
+historical_categories = ["cru_none", "cru_tx0"]
+historical_year_range = pd.RangeIndex(start=1950, stop=2014)
+future_year_range = pd.RangeIndex(start=2014, stop=2100)
+random_seed = 42  # random seed for reproducible random numbers
+
+# Helper functions.
+def to_acres(km2):
+    """ square KM to acres """
+    if math.isnan(km2):
+        return 0
+    return round(km2 * 247.11)
+
+
+def from_acres(acres):
+    """ return square KM """
+    return round(acres / 247.11)
+
 
 zones = {
     "ChugachNationalForest": "Chugach National Forest",
@@ -25,6 +52,12 @@ ecoregions = {
     "BeringTundra": "Bering Tundra",
     "IntermontaneBoreal": "Intermontane Boreal",
     "PacificMountainsTransition": "Pacific Mountains Transition",
+}
+
+# Some static stuff we glue to make filenames
+spatial_prefix_map = {
+    "EcoregionsLevel2": ecoregions,
+    "FireManagementZones": zones,
 }
 
 scenarios = {"rcp45": "RCP 4.5", "rcp60": "RCP 6.0", "rcp85": "RCP 8.5"}

@@ -6,13 +6,14 @@ User interface for Dash app.
 
 import dash_core_components as dcc
 import dash_html_components as html
-from luts import zones, ecoregions, scenarios, models, treatment_options
+import luts
 
 # Zones and ecoregions together for now
-zones = {**zones, **ecoregions}
+regions = {**luts.zones, **luts.ecoregions}
 
 # Add additional keys for items exposed via gui
-zones["statewide_FireManagementZones"] = "Full Model Extent"
+regions["AllFMZs"] = "Full Model Extent"
+models = luts.models
 models["5modelavg"] = "5-Model Average"
 
 navbar = html.Div(
@@ -66,17 +67,17 @@ historical_field = html.Div(
     ],
 )
 
-zone_dropdown = dcc.Dropdown(
-    id="zone",
-    options=[{"label": zones[key], "value": key} for key in zones],
-    value="statewide_FireManagementZones",
+region_dropdown = dcc.Dropdown(
+    id="region",
+    options=[{"label": regions[key], "value": key} for key in regions],
+    value="AllFMZs",
 )
 
-zone_dropdown_field = html.Div(
+region_dropdown_field = html.Div(
     className="field",
     children=[
         html.Label("Area", className="label hidden"),
-        html.Div(className="control", children=[zone_dropdown]),
+        html.Div(className="control", children=[region_dropdown]),
     ],
 )
 
@@ -84,7 +85,7 @@ scenarios_checklist = dcc.Checklist(
     id="scenarios_checklist",
     className="checkbox",
     labelClassName="checkbox",
-    options=[{"label": scenarios[key], "value": key} for key in scenarios],
+    options=[{"label": luts.scenarios[key], "value": key} for key in luts.scenarios],
     values=["rcp60"],
 )
 
@@ -134,7 +135,7 @@ treatment_options_checklist = dcc.Checklist(
     id="treatment_options_checklist",
     labelClassName="checkbox",
     options=[
-        {"label": treatment_options[key], "value": key} for key in treatment_options
+        {"label": luts.treatment_options[key], "value": key} for key in luts.treatment_options
     ],
     values=["gcm_tx0"],
 )
@@ -188,7 +189,7 @@ layout = html.Div(
                         html.Div(
                             className="column is-one-third",
                             children=[
-                                zone_dropdown_field,
+                                region_dropdown_field,
                                 decadal_radio_field,
                                 historical_field,
                                 rolling_window_slider_field,

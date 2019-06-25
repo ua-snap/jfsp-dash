@@ -8,7 +8,7 @@ See preprocess.py for the data structure that this code assumes!
 
 """
 
-from pprint import pprint
+import math
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
@@ -19,6 +19,7 @@ from gui import layout
 total_area_burned = pd.read_pickle("total_area_burned.pickle")
 veg_counts = pd.read_pickle("veg_counts.pickle")
 costs = pd.read_pickle("costs.pickle")
+
 
 app = dash.Dash(__name__)
 # AWS Elastic Beanstalk looks for application by default,
@@ -32,7 +33,7 @@ app.layout = layout
 @app.callback(
     Output("total_area_burned", "figure"),
     inputs=[
-        Input("zone", "value"),
+        Input("region", "value"),
         Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "values"),
         Input("models_checklist", "values"),
@@ -42,7 +43,7 @@ app.layout = layout
     ],
 )
 def generate_total_area_burned(
-    zone,
+    region,
     show_historical,
     scenarios,
     models,
@@ -56,24 +57,35 @@ def generate_total_area_burned(
 
     interval = "annual" if decadal_radio == "annual" else "decadal"
 
-    # Stack the bar for the 2010s only when it's historical/decadal
     barmode = "group"
-    if show_historical and interval == "decadal":
-        barmode = "stack"
+
+    # Subset historical data
+    h = total_area_burned[
+        (total_area_burned.region == region)
+        & (total_area_burned.treatment == luts.historical_categories[1])
+    ]
+    if interval == "decadal":
+        h = h.groupby(h.index // 10 * 10).mean()
 
     # Future!
     for treatment in treatment_options:
         for scenario in scenarios:
             for model in models:
+                t = total_area_burned[
+                    (total_area_burned.region == region)
+                    & (total_area_burned.scenario == scenario)
+                    & (total_area_burned.model == model)
+                    & (total_area_burned.treatment == treatment)
+                ]
+
+                if interval == "decadal":
+                    t = t.groupby(t.index // 10 * 10).mean()
+
                 data_traces.extend(
                     [
                         {
-                            "x": total_area_burned["future"][treatment][scenario][model][
-                                interval
-                            ].index.tolist(),
-                            "y": total_area_burned["future"][treatment][scenario][model][interval][
-                                zone
-                            ],
+                            "x": t.index.tolist(),
+                            "y": t.area.apply(luts.to_acres),
                             "type": "bar",
                             "barmode": barmode,
                             "name": ", ".join(
@@ -87,12 +99,7 @@ def generate_total_area_burned(
                     ]
                 )
 
-                merged = pd.concat(
-                    [
-                        total_area_burned["historical"]["annual"][zone],
-                        total_area_burned["future"][treatment][scenario][model]["annual"][zone],
-                    ]
-                )
+                merged = pd.concat([h.area, t.area])
                 rolling = merged.rolling(rolling_slider, center=True).mean()
                 rolling_std = merged.rolling(rolling_slider, center=True).std()
 
@@ -106,7 +113,7 @@ def generate_total_area_burned(
                         [
                             {
                                 "x": rolling.index.tolist(),
-                                "y": rolling,
+                                "y": rolling.apply(luts.to_acres),
                                 "type": "line",
                                 "name": ", ".join(
                                     [
@@ -120,7 +127,7 @@ def generate_total_area_burned(
                             },
                             {
                                 "x": rolling_std.index.tolist(),
-                                "y": rolling_std,
+                                "y": rolling_std.apply(luts.to_acres),
                                 "type": "line",
                                 "name": ", ".join(
                                     [
@@ -140,8 +147,8 @@ def generate_total_area_burned(
         data_traces.extend(
             [
                 {
-                    "x": total_area_burned["historical"][interval].index.tolist(),
-                    "y": total_area_burned["historical"][interval][zone],
+                    "x": h.index.tolist(),
+                    "y": h.area.apply(luts.to_acres),
                     "type": "bar",
                     "barmode": barmode,
                     "name": "historical",
@@ -155,7 +162,7 @@ def generate_total_area_burned(
         barmode=barmode,
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "Acres", "type": "log"},
+        yaxis={"title": "Acres"},
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
@@ -164,17 +171,15 @@ def generate_total_area_burned(
 @app.callback(
     Output("veg_counts", "figure"),
     inputs=[
-        Input("zone", "value"),
+        Input("region", "value"),
         Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "values"),
         Input("models_checklist", "values"),
         Input("treatment_options_checklist", "values"),
-        Input("decadal_radio", "value"),
     ],
 )
-def generate_veg_counts(
-    region, show_historical, scenarios, models, treatment_options, decadal_radio
-):
+def generate_veg_counts(region, show_historical, scenarios, models, treatment_options):
+    """ Display veg count graph """
     show_historical = "show_historical" in show_historical
     data_traces = []
 
@@ -231,6 +236,7 @@ def generate_veg_counts(
     )
     return {"data": data_traces, "layout": graph_layout}
 
+
 @app.callback(
     Output("costs", "figure"),
     inputs=[
@@ -269,19 +275,21 @@ def generate_costs(
             for model in models:
                 for option in luts.fmo_options:
                     hc = costs.loc[
-                        (costs["treatment"] == treatment) &
-                        (costs["scenario"] == scenario) &
-                        (costs["model"] == model) &
-                        (costs["option"] == option)
+                        (costs["treatment"] == treatment)
+                        & (costs["scenario"] == scenario)
+                        & (costs["model"] == model)
+                        & (costs["option"] == option)
                     ]
-                    pprint(hc)
                     data_traces.extend(
                         [
                             {
                                 "x": hc.index.tolist(),
                                 "y": hc["cost"],
                                 "type": "bar",
-                                "name": treatment + scenario + model + luts.fmo_options[option],
+                                "name": treatment
+                                + scenario
+                                + model
+                                + luts.fmo_options[option],
                             }
                         ]
                     )
