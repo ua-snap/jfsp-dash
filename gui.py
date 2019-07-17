@@ -118,11 +118,11 @@ models_checklist_field = html.Div(
 rolling_window_slider = dcc.Slider(
     className="",
     id="rolling_slider",
-    min=1,
+    min=10,
     max=40,
     step=1,
     value=30,
-    marks={1: "1", 10: "10", 20: "20", 30: "30", 40: "40"},
+    marks={10: "10", 20: "20", 30: "30", 40: "40"},
 )
 
 rolling_window_slider_field = html.Div(
