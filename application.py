@@ -74,6 +74,7 @@ def generate_total_area_burned(
             & (total_area_burned.treatment == treatment)
         ]
 
+        # Show sum of fires in a decade as bars
         if interval == "decadal":
             t = t.groupby(t.index // 10 * 10).sum()
             data_traces.extend(
@@ -103,6 +104,8 @@ def generate_total_area_burned(
             rolling = rolling.loc[2014:2099]
             rolling_std = rolling_std.loc[2014:2099]
 
+        # Only show these running averages when annual
+        # selected
         if interval == "annual":
             data_traces.extend(
                 [
