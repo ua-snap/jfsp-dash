@@ -8,6 +8,7 @@ See preprocess.py for the data structure that this code assumes!
 
 """
 
+import math
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
@@ -99,10 +100,16 @@ def generate_total_area_burned(
         rolling = merged.rolling(rolling_slider, center=True).mean()
         rolling_std = merged.rolling(rolling_slider, center=True).std()
 
-        # Trim if not also showing historical values
-        if not show_historical:
-            rolling = rolling.loc[2014:2099]
-            rolling_std = rolling_std.loc[2014:2099]
+        # Trim to only show data values inside
+        # the rolling windows
+        if show_historical:
+            start_year = math.ceil(1950 + rolling_slider/2)
+        else:
+            start_year = 2014
+
+        end_year = math.floor(2100 - rolling_slider/2)
+        rolling = rolling.loc[start_year:end_year]
+        rolling_std = rolling_std.loc[start_year:end_year]
 
         # Only show these running averages when annual
         # selected
