@@ -240,7 +240,6 @@ def generate_veg_counts(region, show_historical, scenarios, models, treatment_op
 @app.callback(
     Output("costs", "figure"),
     inputs=[
-        Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "values"),
         Input("models_checklist", "values"),
         Input("treatment_options_checklist", "values"),
@@ -248,27 +247,10 @@ def generate_veg_counts(region, show_historical, scenarios, models, treatment_op
     ],
 )
 def generate_costs(
-    show_historical, scenarios, models, treatment_options, decadal_radio
+    scenarios, models, treatment_options, decadal_radio
 ):
     """ Generate costs graph """
-    show_historical = "show_historical" in show_historical
     data_traces = []
-
-    if show_historical:
-        for option in luts.fmo_options:
-            hc = costs.loc[
-                (costs["treatment"] == "cru_tx0") & (costs["option"] == option)
-            ]
-            data_traces.extend(
-                [
-                    {
-                        "x": hc.index.tolist(),
-                        "y": hc["cost"],
-                        "type": "bar",
-                        "name": "Historical " + luts.fmo_options[option],
-                    }
-                ]
-            )
 
     for treatment in treatment_options:
         for scenario in scenarios:
@@ -295,7 +277,7 @@ def generate_costs(
                     )
 
     graph_layout = go.Layout(
-        title="Costs by Fire Management Option",
+        title="Future Costs by Fire Management Option",
         showlegend=True,
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
