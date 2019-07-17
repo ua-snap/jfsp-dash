@@ -8,7 +8,6 @@ See preprocess.py for the data structure that this code assumes!
 
 """
 
-import math
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
 import dash
@@ -56,7 +55,6 @@ def generate_total_area_burned(
     data_traces = []
 
     interval = "annual" if decadal_radio == "annual" else "decadal"
-
     barmode = "group"
 
     # Subset historical data
@@ -78,24 +76,23 @@ def generate_total_area_burned(
 
         if interval == "decadal":
             t = t.groupby(t.index // 10 * 10).mean()
-
-        data_traces.extend(
-            [
-                {
-                    "x": t.index.tolist(),
-                    "y": t.area.apply(luts.to_acres),
-                    "type": "bar",
-                    "barmode": barmode,
-                    "name": ", ".join(
-                        [
-                            luts.treatment_options[treatment],
-                            luts.scenarios[scenario],
-                            luts.models[model],
-                        ]
-                    ),
-                }
-            ]
-        )
+            data_traces.extend(
+                [
+                    {
+                        "x": t.index.tolist(),
+                        "y": t.area.apply(luts.to_acres),
+                        "type": "bar",
+                        "barmode": barmode,
+                        "name": ", ".join(
+                            [
+                                luts.treatment_options[treatment],
+                                luts.scenarios[scenario],
+                                luts.models[model],
+                            ]
+                        ),
+                    }
+                ]
+            )
 
         merged = pd.concat([h.area, t.area])
         rolling = merged.rolling(rolling_slider, center=True).mean()
@@ -139,20 +136,6 @@ def generate_total_area_burned(
                     },
                 ]
             )
-
-    # Past!
-    if show_historical:
-        data_traces.extend(
-            [
-                {
-                    "x": h.index.tolist(),
-                    "y": h.area.apply(luts.to_acres),
-                    "type": "bar",
-                    "barmode": barmode,
-                    "name": "historical",
-                }
-            ]
-        )
 
     graph_layout = go.Layout(
         title="Total area burned",
