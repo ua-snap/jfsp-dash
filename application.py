@@ -228,9 +228,7 @@ def generate_veg_counts(region, show_historical, scenario, model, treatment_opti
         Input("decadal_radio", "value"),
     ],
 )
-def generate_costs(
-    scenario, model, treatment_options, decadal_radio
-):
+def generate_costs(scenario, model, treatment_options, decadal_radio):
     """ Generate costs graph """
     data_traces = []
 
@@ -248,10 +246,7 @@ def generate_costs(
                         "x": hc.index.tolist(),
                         "y": hc["cost"],
                         "type": "bar",
-                        "name": treatment
-                        + scenario
-                        + model
-                        + luts.fmo_options[option],
+                        "name": treatment + scenario + model + luts.fmo_options[option],
                     }
                 ]
             )

@@ -10,6 +10,7 @@ import luts
 from pprint import pprint
 import pdb
 
+
 def get_source_filename(data_dir, spatial_prefix, treatment, prefix, postfix, region):
     """ Given the parameters, return a filename to the source data. """
     input_file = os.path.join(
@@ -45,7 +46,7 @@ def process(data_dir):
                 luts.historical_categories[1],
                 luts.historical_fmo_prefix,
                 luts.historical_date_postfix,
-                region
+                region,
             )
             d = pd.read_csv(input_file, index_col=0)
             t["area"] = d.mean(axis=1)
@@ -73,11 +74,16 @@ def process(data_dir):
                             treatment,
                             prefix,
                             luts.date_postfix,
-                            region
+                            region,
                         )
 
                         t = pd.DataFrame(index=luts.future_year_range, columns=cols)
-                        t = t.assign(treatment=treatment, scenario=scenario, model=model, region=region)
+                        t = t.assign(
+                            treatment=treatment,
+                            scenario=scenario,
+                            model=model,
+                            region=region,
+                        )
                         d = pd.read_csv(input_file, index_col=0)
                         t["area"] = d.mean(axis=1)
                         total_area_burned = total_area_burned.append(t)
@@ -90,7 +96,12 @@ def process(data_dir):
             for treatment in luts.treatment_options:
                 for scenario in luts.scenarios:
                     t = pd.DataFrame(index=luts.future_year_range, columns=cols)
-                    t = t.assign(treatment=treatment, scenario=scenario, model="5modelavg", region=region)
+                    t = t.assign(
+                        treatment=treatment,
+                        scenario=scenario,
+                        model="5modelavg",
+                        region=region,
+                    )
                     z = pd.DataFrame(index=luts.future_year_range, columns=luts.models)
                     for model in luts.models:
                         z[model] = total_area_burned[
@@ -126,7 +137,12 @@ def process(data_dir):
         for scenario in luts.scenarios:
             for model in models_with_5modelavg:
                 t = pd.DataFrame(index=luts.future_year_range, columns=cols)
-                t = t.assign(treatment=treatment, scenario=scenario, model=model, region="AllFMZs")
+                t = t.assign(
+                    treatment=treatment,
+                    scenario=scenario,
+                    model=model,
+                    region="AllFMZs",
+                )
                 z = pd.DataFrame(index=luts.future_year_range, columns=luts.zones)
                 for zone in luts.zones:
                     z[zone] = total_area_burned[

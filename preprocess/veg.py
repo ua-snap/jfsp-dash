@@ -13,6 +13,7 @@ import luts
 forest_types = ["Deciduous", "BlackSpruce", "WhiteSpruce"]
 veg_columns = ["treatment", "scenario", "model", "region", "deciduous", "coniferous"]
 
+
 def get_veg_filename(
     data_dir, spatial_prefix, treatment, scenario, model, region, forest
 ):
@@ -214,10 +215,7 @@ def process(data_dir):
     # Statewide sums -- all FMZs
     tidied = pd.DataFrame(index=luts.historical_year_range)
     tidied = tidied.assign(
-        treatment="cru_tx0",
-        scenario="historical",
-        model="",
-        region=luts.STATEWIDE,
+        treatment="cru_tx0", scenario="historical", model="", region=luts.STATEWIDE
     )
     t = veg_counts.loc[veg_counts["region"].isin(luts.zones)]
     for year in luts.historical_year_range:

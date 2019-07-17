@@ -85,7 +85,9 @@ scenarios_checklist = dcc.RadioItems(
     id="scenarios_checklist",
     className="radio",
     labelClassName="radio",
-    options=[{"label": " " + luts.scenarios[key], "value": key} for key in luts.scenarios],
+    options=[
+        {"label": " " + luts.scenarios[key], "value": key} for key in luts.scenarios
+    ],
     value="rcp60",
 )
 
@@ -135,7 +137,8 @@ treatment_options_checklist = dcc.Checklist(
     id="treatment_options_checklist",
     labelClassName="checkbox",
     options=[
-        {"label": luts.treatment_options[key], "value": key} for key in luts.treatment_options
+        {"label": luts.treatment_options[key], "value": key}
+        for key in luts.treatment_options
     ],
     values=["gcm_tx0"],
 )
@@ -164,17 +167,11 @@ This is a page footer, where we'd put legal notes and other items.
     ],
 )
 
-graph_layout = html.Div(
-    className="graph", children=[dcc.Graph(id="total_area_burned")]
-)
+graph_layout = html.Div(className="graph", children=[dcc.Graph(id="total_area_burned")])
 
-veg_graph_layout = html.Div(
-    className="graph", children=[dcc.Graph(id="veg_counts")]
-)
+veg_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="veg_counts")])
 
-costs_graph_layout = html.Div(
-    className="graph", children=[dcc.Graph(id="costs")]
-)
+costs_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="costs")])
 
 layout = html.Div(
     className="container",
@@ -203,13 +200,17 @@ layout = html.Div(
                             ],
                         ),
                         html.Div(
-                            className="column is-one-third", children=[models_checklist_field]
+                            className="column is-one-third",
+                            children=[models_checklist_field],
                         ),
                     ],
-                ),
+                )
             ],
         ),
-        html.Div(className="graphs", children=[graph_layout, veg_graph_layout, costs_graph_layout]),
+        html.Div(
+            className="graphs",
+            children=[graph_layout, veg_graph_layout, costs_graph_layout],
+        ),
         footer,
     ],
 )

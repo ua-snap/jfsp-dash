@@ -20,6 +20,7 @@ random_cost_map = pd.DataFrame(index=pd.RangeIndex(start=1950, stop=2100))
 random_cost_map["year"] = np.random.randint(2011, 2018, random_cost_map.shape[0])
 random_cost_map.to_csv("random_year_map.csv")
 
+
 def get_cost_filename(data_dir, treatment, scenario, model, option):
     """
     Returns the filename for a given place/zone/forest type.
