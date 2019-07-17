@@ -75,7 +75,7 @@ def generate_total_area_burned(
         ]
 
         if interval == "decadal":
-            t = t.groupby(t.index // 10 * 10).mean()
+            t = t.groupby(t.index // 10 * 10).sum()
             data_traces.extend(
                 [
                     {
