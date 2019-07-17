@@ -19,19 +19,27 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* We want vertical Checklists always. */
-.control label.checkbox {
+.control label.checkbox, .control label.radio {
 	display: block;
 }
 
-.control label.checkbox input[type="checkbox"] {
+.control label.checkbox input[type="checkbox"], .control label.radio input[type="radio"] {
 	display: inline-block;
-	margin-right: 1ex;
 	position: relative;
 	bottom: 1px;
 }
 
-.control .models_checklist label.checkbox:first-of-type {
+.control label.checkbox input[type="checkbox"] {
+	margin-right: 1ex;
+}
+
+.control .models_checklist label.radio:first-of-type {
 	font-weight: bold;
+}
+
+/* override a Bulma default for inline radio items */
+.radio+.radio {
+	margin-left: 0;
 }
 
 label.hidden {

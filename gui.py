@@ -81,12 +81,12 @@ region_dropdown_field = html.Div(
     ],
 )
 
-scenarios_checklist = dcc.Checklist(
+scenarios_checklist = dcc.RadioItems(
     id="scenarios_checklist",
-    className="checkbox",
-    labelClassName="checkbox",
-    options=[{"label": luts.scenarios[key], "value": key} for key in luts.scenarios],
-    values=["rcp60"],
+    className="radio",
+    labelClassName="radio",
+    options=[{"label": " " + luts.scenarios[key], "value": key} for key in luts.scenarios],
+    value="rcp60",
 )
 
 scenarios_checklist_field = html.Div(
@@ -97,12 +97,12 @@ scenarios_checklist_field = html.Div(
     ],
 )
 
-models_checklist = dcc.Checklist(
+models_checklist = dcc.RadioItems(
     id="models_checklist",
-    labelClassName="checkbox",
-    className="models_checklist",
-    options=[{"label": models[key], "value": key} for key in sorted(models)],
-    values=["5modelavg"],
+    labelClassName="radio",
+    className="radio models_checklist",
+    options=[{"label": " " + models[key], "value": key} for key in sorted(models)],
+    value="5modelavg",
 )
 
 models_checklist_field = html.Div(
