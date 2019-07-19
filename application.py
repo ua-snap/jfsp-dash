@@ -64,7 +64,20 @@ def generate_total_area_burned(
         & (total_area_burned.treatment == luts.historical_categories[1])
     ]
     if interval == "decadal":
-        h = h.groupby(h.index // 10 * 10).mean()
+        h = h.groupby(h.index // 10 * 10).sum()
+
+        if show_historical:
+            data_traces.extend(
+                [
+                    {
+                        "x": h.index.tolist(),
+                        "y": h.area.apply(luts.to_acres),
+                        "type": "bar",
+                        "barmode": barmode,
+                        "name": "historical"
+                    }
+                ]
+            )
 
     # Future!
     for treatment in treatment_options:
