@@ -20,6 +20,8 @@ total_area_burned = pd.read_pickle("total_area_burned.pickle")
 veg_counts = pd.read_pickle("veg_counts.pickle")
 costs = pd.read_pickle("costs.pickle")
 
+# Window for doing rolling average/std
+rolling_window = 10
 
 app = dash.Dash(__name__)
 # AWS Elastic Beanstalk looks for application by default,
@@ -39,7 +41,6 @@ app.layout = layout
         Input("models_checklist", "value"),
         Input("treatment_options_checklist", "values"),
         Input("decadal_radio", "value"),
-        Input("rolling_slider", "value"),
     ],
 )
 def generate_total_area_burned(
@@ -48,8 +49,7 @@ def generate_total_area_burned(
     scenario,
     model,
     treatment_options,
-    decadal_radio,
-    rolling_slider,
+    decadal_radio
 ):
     """ Regenerate plot data for area burned """
     show_historical = "show_historical" in show_historical
@@ -110,17 +110,17 @@ def generate_total_area_burned(
             )
 
         merged = pd.concat([h.area, t.area])
-        rolling = merged.rolling(rolling_slider, center=True).mean()
-        rolling_std = merged.rolling(rolling_slider, center=True).std()
+        rolling = merged.rolling(rolling_window, center=True).mean()
+        rolling_std = merged.rolling(rolling_window, center=True).std()
 
         # Trim to only show data values inside
         # the rolling windows
         if show_historical:
-            start_year = math.ceil(1950 + rolling_slider/2)
+            start_year = math.ceil(1950 + rolling_window/2)
         else:
             start_year = 2014
 
-        end_year = math.floor(2100 - rolling_slider/2)
+        end_year = math.floor(2100 - rolling_window/2)
         rolling = rolling.loc[start_year:end_year]
         rolling_std = rolling_std.loc[start_year:end_year]
 
@@ -135,7 +135,7 @@ def generate_total_area_burned(
                         "type": "line",
                         "name": ", ".join(
                             [
-                                str(rolling_slider)
+                                str(rolling_window)
                                 + "yr avg "
                                 + luts.treatment_options[treatment],
                                 luts.scenarios[scenario],
@@ -149,7 +149,7 @@ def generate_total_area_burned(
                         "type": "line",
                         "name": ", ".join(
                             [
-                                str(rolling_slider)
+                                str(rolling_window)
                                 + "yr avg std"
                                 + luts.treatment_options[treatment],
                                 luts.scenarios[scenario],
