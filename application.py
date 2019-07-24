@@ -31,14 +31,12 @@ application = app.server
 app.title = "JFSP"
 app.layout = layout
 
-
 @app.callback(
     Output("total_area_burned", "figure"),
     inputs=[
         Input("region", "value"),
         Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "value"),
-        Input("models_checklist", "value"),
         Input("treatment_options_checklist", "values"),
         Input("decadal_radio", "value"),
     ],
@@ -47,7 +45,6 @@ def generate_total_area_burned(
     region,
     show_historical,
     scenario,
-    model,
     treatment_options,
     decadal_radio
 ):
@@ -84,7 +81,7 @@ def generate_total_area_burned(
         t = total_area_burned[
             (total_area_burned.region == region)
             & (total_area_burned.scenario == scenario)
-            & (total_area_burned.model == model)
+            & (total_area_burned.model == luts.MODEL_AVG)
             & (total_area_burned.treatment == treatment)
         ]
 
@@ -102,7 +99,7 @@ def generate_total_area_burned(
                             [
                                 luts.treatment_options[treatment],
                                 luts.scenarios[scenario],
-                                luts.models[model],
+                                luts.models[luts.MODEL_AVG],
                             ]
                         ),
                     }
@@ -139,7 +136,7 @@ def generate_total_area_burned(
                                 + "yr avg "
                                 + luts.treatment_options[treatment],
                                 luts.scenarios[scenario],
-                                luts.models[model],
+                                luts.models[luts.MODEL_AVG],
                             ]
                         ),
                     },
@@ -153,7 +150,7 @@ def generate_total_area_burned(
                                 + "yr avg std"
                                 + luts.treatment_options[treatment],
                                 luts.scenarios[scenario],
-                                luts.models[model],
+                                luts.models[luts.MODEL_AVG],
                             ]
                         ),
                     },
@@ -178,11 +175,10 @@ def generate_total_area_burned(
         Input("region", "value"),
         Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "value"),
-        Input("models_checklist", "value"),
         Input("treatment_options_checklist", "values"),
     ],
 )
-def generate_veg_counts(region, show_historical, scenario, model, treatment_options):
+def generate_veg_counts(region, show_historical, scenario, treatment_options):
     """ Display veg count graph """
     show_historical = "show_historical" in show_historical
     data_traces = []
@@ -192,7 +188,7 @@ def generate_veg_counts(region, show_historical, scenario, model, treatment_opti
         vc = veg_counts.loc[
             (veg_counts["treatment"] == treatment)
             & (veg_counts["scenario"] == scenario)
-            & (veg_counts["model"] == model)
+            & (veg_counts["model"] == luts.MODEL_AVG)
             & (veg_counts["region"] == region)
         ]
         data_traces.extend(
@@ -205,7 +201,7 @@ def generate_veg_counts(region, show_historical, scenario, model, treatment_opti
                         [
                             luts.treatment_options[treatment],
                             luts.scenarios[scenario],
-                            luts.models[model],
+                            luts.models[luts.MODEL_AVG],
                         ]
                     ),
                 }
@@ -243,12 +239,11 @@ def generate_veg_counts(region, show_historical, scenario, model, treatment_opti
     Output("costs", "figure"),
     inputs=[
         Input("scenarios_checklist", "value"),
-        Input("models_checklist", "value"),
         Input("treatment_options_checklist", "values"),
         Input("decadal_radio", "value"),
     ],
 )
-def generate_costs(scenario, model, treatment_options, decadal_radio):
+def generate_costs(scenario, treatment_options, decadal_radio):
     """ Generate costs graph """
     data_traces = []
 
@@ -257,7 +252,7 @@ def generate_costs(scenario, model, treatment_options, decadal_radio):
             hc = costs.loc[
                 (costs["treatment"] == treatment)
                 & (costs["scenario"] == scenario)
-                & (costs["model"] == model)
+                & (costs["model"] == luts.MODEL_AVG)
                 & (costs["option"] == option)
             ]
             data_traces.extend(
@@ -266,7 +261,7 @@ def generate_costs(scenario, model, treatment_options, decadal_radio):
                         "x": hc.index.tolist(),
                         "y": hc["cost"],
                         "type": "bar",
-                        "name": treatment + scenario + model + luts.fmo_options[option],
+                        "name": treatment + scenario + luts.MODEL_AVG + luts.fmo_options[option],
                     }
                 ]
             )

@@ -99,22 +99,6 @@ scenarios_checklist_field = html.Div(
     ],
 )
 
-models_checklist = dcc.RadioItems(
-    id="models_checklist",
-    labelClassName="radio",
-    className="radio models_checklist",
-    options=[{"label": " " + models[key], "value": key} for key in sorted(models)],
-    value="5modelavg",
-)
-
-models_checklist_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Models", className="label"),
-        html.Div(className="control", children=[models_checklist]),
-    ],
-)
-
 treatment_options_checklist = dcc.Checklist(
     id="treatment_options_checklist",
     labelClassName="checkbox",
@@ -176,13 +160,12 @@ layout = html.Div(
                         html.Div(
                             className="column is-one-third",
                             children=[
-                                treatment_options_checklist_field,
-                                scenarios_checklist_field,
+                                treatment_options_checklist_field
                             ],
                         ),
                         html.Div(
                             className="column is-one-third",
-                            children=[models_checklist_field],
+                            children=[scenarios_checklist_field],
                         ),
                     ],
                 )
