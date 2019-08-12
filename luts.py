@@ -26,11 +26,6 @@ def to_acres(km2):
     return round(km2 * 247.11)
 
 
-def from_acres(acres):
-    """ return square KM """
-    return round(acres / 247.11)
-
-
 zones = {
     "ChugachNationalForest": "Chugach National Forest",
     "CopperRiverArea": "Copper River Area",
