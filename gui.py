@@ -50,24 +50,6 @@ fmo_radio_field = html.Div(
     ],
 )
 
-decadal_radio = dcc.RadioItems(
-    labelClassName="radio",
-    id="decadal_radio",
-    className="control horizontal",
-    options=[
-        {"label": " Annual ", "value": "annual"},
-        {"label": " Decadal ", "value": "decadal"},
-    ],
-    value="annual",
-)
-decadal_radio_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Annual or decadal data?", className="label hidden"),
-        decadal_radio,
-    ],
-)
-
 historical_checkbox = dcc.Checklist(
     id="historical_checkbox",
     className="checkbox",
@@ -207,7 +189,6 @@ layout = html.Div(
             children=[
                 html.H4("Total area burned", className="title is-4 first"),
                 about_area,
-                decadal_radio_field,
                 graph_layout,
                 html.H4("Vegetation type ratio", className="title is-4"),
                 about_veg,

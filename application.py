@@ -37,47 +37,21 @@ app.layout = layout
         Input("region", "value"),
         Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "value"),
-        Input("treatment_options_checklist", "values"),
-        Input("decadal_radio", "value"),
+        Input("treatment_options_checklist", "values")
     ],
 )
 def generate_total_area_burned(
     region,
     show_historical,
     scenario,
-    treatment_options,
-    decadal_radio
+    treatment_options
 ):
     """ Regenerate plot data for area burned """
     show_historical = "show_historical" in show_historical
     data_traces = []
 
-    interval = "annual" if decadal_radio == "annual" else "decadal"
-    barmode = "group"
-
-    # Subset historical data
-    h = total_area_burned[
-        (total_area_burned.region == region)
-        & (total_area_burned.treatment == luts.historical_categories[1])
-    ]
-    if interval == "decadal":
-        h = h.groupby(h.index // 10 * 10).sum()
-
-        if show_historical:
-            data_traces.extend(
-                [
-                    {
-                        "x": h.index.tolist(),
-                        "y": h.area.apply(luts.to_acres),
-                        "type": "bar",
-                        "barmode": barmode,
-                        "name": "historical"
-                    }
-                ]
-            )
-
-    # Future!
     for treatment in treatment_options:
+        dt = pd.DataFrame()
         t = total_area_burned[
             (total_area_burned.region == region)
             & (total_area_burned.scenario == scenario)
@@ -85,85 +59,38 @@ def generate_total_area_burned(
             & (total_area_burned.treatment == treatment)
         ]
 
-        # Show sum of fires in a decade as bars
-        if interval == "decadal":
-            t = t.groupby(t.index // 10 * 10).sum()
-            data_traces.extend(
-                [
-                    {
-                        "x": t.index.tolist(),
-                        "y": t.area.apply(luts.to_acres),
-                        "type": "bar",
-                        "barmode": barmode,
-                        "name": ", ".join(
-                            [
-                                luts.treatment_options[treatment],
-                                luts.scenarios[scenario],
-                                luts.models[luts.MODEL_AVG],
-                            ]
-                        ),
-                    }
-                ]
-            )
-
-        merged = pd.concat([h.area, t.area])
-        rolling = merged.rolling(rolling_window, center=True).mean()
-        rolling_std = merged.rolling(rolling_window, center=True).std()
-
-        # Trim to only show data values inside
-        # the rolling windows
+        # Subset historical data
         if show_historical:
-            start_year = math.ceil(1950 + rolling_window/2)
-        else:
-            start_year = 2014
+            h = total_area_burned[
+                (total_area_burned.region == region)
+                & (total_area_burned.treatment == luts.historical_categories[1])
+            ]
+            t = t.append(h)
 
-        end_year = math.floor(2100 - rolling_window/2)
-        rolling = rolling.loc[start_year:end_year]
-        rolling_std = rolling_std.loc[start_year:end_year]
+        t = t.groupby(t.index // 10 * 10)
+        for key, values in t: #pylint: disable=unused-variable
+            a = t.get_group(key)
+            a["decade"] = key
+            dt = dt.append(a)
 
-        # Only show these running averages when annual
-        # selected
-        if interval == "annual":
-            data_traces.extend(
-                [
-                    {
-                        "x": rolling.index.tolist(),
-                        "y": rolling.apply(luts.to_acres),
-                        "type": "line",
-                        "name": ", ".join(
-                            [
-                                str(rolling_window)
-                                + "yr avg "
-                                + luts.treatment_options[treatment],
-                                luts.scenarios[scenario],
-                                luts.models[luts.MODEL_AVG],
-                            ]
-                        ),
-                    },
-                    {
-                        "x": rolling_std.index.tolist(),
-                        "y": rolling_std.apply(luts.to_acres),
-                        "type": "line",
-                        "name": ", ".join(
-                            [
-                                str(rolling_window)
-                                + "yr avg std"
-                                + luts.treatment_options[treatment],
-                                luts.scenarios[scenario],
-                                luts.models[luts.MODEL_AVG],
-                            ]
-                        ),
-                    },
-                ]
-            )
+        data_traces.extend([
+                go.Box(
+                    name=luts.treatment_options[treatment],
+                    x=dt.decade,
+                    y=dt.area.apply(luts.to_acres)
+                )
+            ])
 
     graph_layout = go.Layout(
         title="Total area burned",
         showlegend=True,
-        barmode=barmode,
+        boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "Acres"},
+        yaxis={
+            "title": "Acres",
+            "range": [0, 5000000]
+        },
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
