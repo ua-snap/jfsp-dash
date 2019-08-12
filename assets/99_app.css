@@ -52,6 +52,18 @@ label.hidden {
 	padding-top: -.75em;
 }
 
+/* Horizontal radios */
+
+.control.horizontal label {
+	display: inline-block;
+	padding-right: 1em;
+}
+.control.horizontal label input[type="radio"] {
+	display: inline-block;
+	margin-right: 1ex;
+}
+
+
 /* zone / region selection GUI element */
 #zone {
 	margin-bottom: 1.1em;
@@ -65,6 +77,15 @@ label.hidden {
 .field.rolling-window {
 	margin-bottom: 2em;
 
+}
+
+.about {
+	margin-bottom: 1em;
+	max-width: 40em;
+}
+
+.first {
+	margin-top: 2em;
 }
 
 .sticky {

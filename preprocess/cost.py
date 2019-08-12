@@ -3,7 +3,12 @@ Compute fire cost estimates.
 
 Costs: data structure definition -- tidy table.  Columns:
 
-year (index), treatment, scenario, rcp, region, fmo, area burned, cost
+year
+treatment option (tx0, tx1, tx2)
+scenario
+fire management option (c, f, l, m, total = sum)
+area (square km)
+cost (computed/documented below)
 
 """
 # pylint: disable=invalid-name,import-error
@@ -73,7 +78,7 @@ def compute_row_cost(row):
     """
     mapped_year = random_cost_map.loc[row.name].year
     cost_factor = luts.fmo_costs[mapped_year][row.option]
-    return round(row.area * cost_factor)
+    return round(luts.to_acres(row.area) * cost_factor)
 
 
 def get_cost_df(data_dir, year_range, treatment, scenario, model):
@@ -143,6 +148,33 @@ def process(data_dir):
                 )
                 tidied["area"] = temp_costs_column
                 tidied["cost"] = tidied.apply(compute_row_cost, axis=1)
+                costs = costs.append(tidied)
+
+    models_with_5modelavg = luts.models.copy()
+    models_with_5modelavg.update({"5modelavg": "5modelavg"})
+
+    for treatment in luts.treatment_options:
+        for scenario in luts.scenarios:
+            for model in models_with_5modelavg:
+                tidied = pd.DataFrame(index=luts.future_year_range)
+                tidied.index.name = "year"
+                tidied = tidied.assign(
+                    treatment=treatment,
+                    scenario=scenario,
+                    model=model,
+                    option="total",
+                )
+                temp_costs_column = (
+                    costs[
+                        (costs.treatment == treatment)
+                        & (costs.scenario == scenario)
+                        & (costs.model == model)
+                    ]
+                    .groupby("year")
+                    .sum(axis=1)
+                )
+                tidied["area"] = temp_costs_column["area"]
+                tidied["cost"] = temp_costs_column["cost"]
                 costs = costs.append(tidied)
 
     costs.to_csv("costs.csv")

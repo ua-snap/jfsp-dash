@@ -240,35 +240,46 @@ def generate_veg_counts(region, show_historical, scenario, treatment_options):
     inputs=[
         Input("scenarios_checklist", "value"),
         Input("treatment_options_checklist", "values"),
-        Input("decadal_radio", "value"),
+        Input("fmo_radio", "value")
     ],
 )
-def generate_costs(scenario, treatment_options, decadal_radio):
+def generate_costs(scenario, treatment_options, option):
     """ Generate costs graph """
     data_traces = []
+    dt = pd.DataFrame()
 
     for treatment in treatment_options:
-        for option in luts.fmo_options:
-            hc = costs.loc[
-                (costs["treatment"] == treatment)
-                & (costs["scenario"] == scenario)
-                & (costs["model"] == luts.MODEL_AVG)
-                & (costs["option"] == option)
-            ]
-            data_traces.extend(
-                [
-                    {
-                        "x": hc.index.tolist(),
-                        "y": hc["cost"],
-                        "type": "bar",
-                        "name": treatment + scenario + luts.MODEL_AVG + luts.fmo_options[option],
-                    }
-                ]
-            )
+        # for option in luts.fmo_options:
+        hc = costs.loc[
+            (costs["treatment"] == treatment)
+            & (costs["scenario"] == scenario)
+            & (costs["model"] == luts.MODEL_AVG)
+            & (costs["option"] == option)
+        ]
+        hc = hc.groupby(hc.index // 10 * 10)
+
+        for key, values in hc: #pylint: disable=unused-variable
+            d = hc.get_group(key)
+            d["decade"] = key
+            dt = dt.append(d)
+
+        data_traces.extend([
+                go.Box(
+                    name=luts.treatment_options[treatment],
+                    x=dt.decade,
+                    y=dt.cost
+                )
+            ])
+
+    if option == "total":
+        title_option = "Total Costs"
+    else:
+        title_option = luts.fmo_options[option] + " Option"
 
     graph_layout = go.Layout(
-        title="Future Costs by Fire Management Option",
+        title="Future Costs, Full Model Domain, " + title_option,
         showlegend=True,
+        boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
         yaxis={"title": "Cost ($)"},
