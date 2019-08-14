@@ -31,24 +31,26 @@ application = app.server
 app.title = "JFSP"
 app.layout = layout
 
+
 @app.callback(
     Output("total_area_burned", "figure"),
     inputs=[
         Input("region", "value"),
         Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "value"),
-        Input("treatment_options_checklist", "values")
+        Input("treatment_options_checklist", "values"),
     ],
 )
-def generate_total_area_burned(
-    region,
-    show_historical,
-    scenario,
-    treatment_options
-):
+def generate_total_area_burned(region, show_historical, scenario, treatment_options):
     """ Regenerate plot data for area burned """
     show_historical = "show_historical" in show_historical
     data_traces = []
+
+    # Subset historical data
+    h = total_area_burned[
+        (total_area_burned.region == region)
+        & (total_area_burned.treatment == luts.historical_categories[1])
+    ]
 
     for treatment in treatment_options:
         dt = pd.DataFrame()
@@ -59,38 +61,64 @@ def generate_total_area_burned(
             & (total_area_burned.treatment == treatment)
         ]
 
-        # Subset historical data
-        if show_historical:
-            h = total_area_burned[
-                (total_area_burned.region == region)
-                & (total_area_burned.treatment == luts.historical_categories[1])
-            ]
-            t = t.append(h)
+        # Always merge the historical data for computing the
+        # rolling std so we get meaningful results for the 2010s.
+        merged = pd.concat([h.area, t.area])
+        rolling_std = merged.rolling(rolling_window, center=True).std()
 
+        # Align start/end ranges with the decadal plots
+        if show_historical:
+            start_year = 1955
+            t = t.append(h)
+        else:
+            start_year = 2010
+
+        end_year = 2090
+        rolling_std = rolling_std.loc[start_year:end_year]
+
+        # Trick to group the data into decadal buckets,
+        # to match what Dash wants for box plots.
         t = t.groupby(t.index // 10 * 10)
-        for key, values in t: #pylint: disable=unused-variable
+        for key, values in t:  # pylint: disable=unused-variable
             a = t.get_group(key)
             a["decade"] = key
             dt = dt.append(a)
 
-        data_traces.extend([
+        data_traces.extend(
+            [
                 go.Box(
-                    name=luts.treatment_options[treatment],
+                    name="Area burned, " + luts.treatment_options[treatment],
                     x=dt.decade,
-                    y=dt.area.apply(luts.to_acres)
-                )
-            ])
+                    y=dt.area.apply(luts.to_acres),
+                ),
+                {
+                    "x": rolling_std.index.tolist(),
+                    "y": rolling_std.apply(luts.to_acres),
+                    "type": "line",
+                    "name": ", ".join(
+                        [
+                            "10-year rolling standard deviation, "
+                            + luts.treatment_options[treatment]
+                        ]
+                    ),
+                },
+            ]
+        )
 
     graph_layout = go.Layout(
-        title="Total area burned",
+        title="Total area burned, "
+        + luts.regions[region]
+        + ", "
+        + luts.scenarios[scenario]
+        + ", "
+        + luts.models[luts.MODEL_AVG],
         showlegend=True,
+        legend_orientation="h",
         boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={
-            "title": "Acres",
-            "range": [0, 5000000]
-        },
+        yaxis={"title": "Acres", "range": [0, 3500000]},
+        height=550,
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
@@ -152,10 +180,17 @@ def generate_veg_counts(region, show_historical, scenario, treatment_options):
         )
 
     graph_layout = go.Layout(
-        title="Ratio of Coniferous to Deciduous, by area",
+        title="Ratio of Coniferous to Deciduous, by area, "
+        + luts.regions[region]
+        + ", "
+        + luts.scenarios[scenario]
+        + ", "
+        + luts.models[luts.MODEL_AVG],
         showlegend=True,
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
+        height=550,
+        legend_orientation="h",
         yaxis={"title": "Coniferous/Deciduous"},
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
@@ -167,7 +202,7 @@ def generate_veg_counts(region, show_historical, scenario, treatment_options):
     inputs=[
         Input("scenarios_checklist", "value"),
         Input("treatment_options_checklist", "values"),
-        Input("fmo_radio", "value")
+        Input("fmo_radio", "value"),
     ],
 )
 def generate_costs(scenario, treatment_options, option):
@@ -185,18 +220,14 @@ def generate_costs(scenario, treatment_options, option):
         ]
         hc = hc.groupby(hc.index // 10 * 10)
 
-        for key, values in hc: #pylint: disable=unused-variable
+        for key, values in hc:  # pylint: disable=unused-variable
             d = hc.get_group(key)
             d["decade"] = key
             dt = dt.append(d)
 
-        data_traces.extend([
-                go.Box(
-                    name=luts.treatment_options[treatment],
-                    x=dt.decade,
-                    y=dt.cost
-                )
-            ])
+        data_traces.extend(
+            [go.Box(name=luts.treatment_options[treatment], x=dt.decade, y=dt.cost)]
+        )
 
     if option == "total":
         title_option = "Total Costs"
@@ -206,10 +237,12 @@ def generate_costs(scenario, treatment_options, option):
     graph_layout = go.Layout(
         title="Future Costs, Full Model Domain, " + title_option,
         showlegend=True,
+        height=550,
+        legend_orientation="h",
         boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "Cost ($)"},
+        yaxis={"title": "Cost ($)", "range": [0, 409000000]},
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}

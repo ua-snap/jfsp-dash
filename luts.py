@@ -50,6 +50,11 @@ ecoregions = {
     "PacificMountainsTransition": "Pacific Mountains Transition",
 }
 
+# Zones and ecoregions together for now
+# Add additional region keys for items exposed via gui
+regions = {**zones, **ecoregions}
+regions["AllFMZs"] = "Full Model Extent"
+
 # Some static stuff we glue to make filenames
 spatial_prefix_map = {"EcoregionsLevel2": ecoregions, "FireManagementZones": zones}
 

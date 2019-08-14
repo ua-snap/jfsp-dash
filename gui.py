@@ -8,11 +8,6 @@ import dash_core_components as dcc
 import dash_html_components as html
 import luts
 
-# Zones and ecoregions together for now
-regions = {**luts.zones, **luts.ecoregions}
-
-# Add additional keys for items exposed via gui
-regions["AllFMZs"] = "Full Model Extent"
 models = luts.models
 models["5modelavg"] = "5-Model Average"
 fmos = luts.fmo_options
@@ -53,7 +48,7 @@ fmo_radio_field = html.Div(
 historical_checkbox = dcc.Checklist(
     id="historical_checkbox",
     className="checkbox",
-    labelClassName="checkbox",
+    labelClassName="checkbox historical",
     options=[{"label": "Show historical", "value": "show_historical"}],
     values=[],
 )
@@ -68,7 +63,7 @@ historical_field = html.Div(
 
 region_dropdown = dcc.Dropdown(
     id="region",
-    options=[{"label": regions[key], "value": key} for key in regions],
+    options=[{"label": luts.regions[key], "value": key} for key in luts.regions],
     value="AllFMZs",
 )
 
@@ -132,28 +127,38 @@ This is a page footer, where we'd put legal notes and other items.
     ],
 )
 
+about = dcc.Markdown('''
+
+How might wildfires in Alaska change over time?  How do different fire management decisions impact costs?  This tool has interactive graphs showing projected future fire behavior, cost, and vegetation indices.
+
+The data used in this tool comes from [ALFRESCO](https://www.snap.uaf.edu/methods/ecosystem-modeling), a software model that simulates the responses of subarctic and boreal vegetation to climatic changes.  We use the model to produce future projections of fire size and vegetation types under varying climate scenarios and fire treatment options.
+
+The story that the projected data are telling is that inter-annual variabiliy of fire size is decreasing&mdash;configerous vegetation is being relegated to optimized, evenly-spaced patches over time.
+
+Costs are estimated by randomly assigning prior years&rsquo; known costs for different the different fire management options to each future year.  For example, if we know that fire costs for Limited option areas were $100/acre, $200/acre, and $1000/acre in the past, we can randomly assign future years to one of these values to estimate possible future costs.
+
+''', className="about is-size-5 content")
+
 graph_layout = html.Div(className="graph", children=[dcc.Graph(id="total_area_burned")])
 about_area = dcc.Markdown('''
 
-(placeholder inline help text)  Long term trends in fire size vary according to which GCM and treatment option being used.  This graph shows (x, y, z).
+The line in the chart below shows inter-annual variability, which can be seen to be decreasing over time.
 
-''', className="about")
+''', className="about is-size-5 content")
 
 veg_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="veg_counts")])
 about_veg = dcc.Markdown('''
 
-(placeholder inline help text)  The ratio between coniferous and deciduous vegetation influences the wildfire regime.  Looking at how long-term trends in vegetation ratios change gives a sense of how fires may behave in the future.
+A higher coniferous/deciduous ratio indicates more fuel for wildfires.
 
-''', className="about")
+''', className="about is-size-5 content")
 
 costs_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="costs")])
 about_future_costs = dcc.Markdown('''
 
-(placeholder inline help text) Future fire costs can be projected by combining future burn area with historical data on actual fire costs.  Fire management options (FMOs)&mdash;Critical, Full, Modified and Limited&mdash;define spatial regions where fire management strategies differ.
+This chart applies to the full spatial domain of ALFRESCO, and is not subset by the region selected in the drop-down menu.  This chart does not show historical data.  Scroll down for more information on how costs are estimated.
 
-This chart applies to the full spatial domain of ALFRESCO, and is not subset by the region selected in the drop-down menu.  This chart does not show historical data.
-
-''', className="about")
+''', className="about is-size-5 content")
 
 layout = html.Div(
     className="container",
@@ -189,16 +194,18 @@ layout = html.Div(
             children=[
                 html.H4("Total area burned", className="title is-4 first"),
                 about_area,
-                graph_layout,
+                html.Div(className="wrapper", id="area_burned--wrapper", children=[graph_layout]),
                 html.H4("Vegetation type ratio", className="title is-4"),
                 about_veg,
-                veg_graph_layout,
+                html.Div(className="wrapper", id="veg_ratio--wrapper", children=[veg_graph_layout]),
                 html.H4("Future costs, full model domain", className="title is-4"),
                 about_future_costs,
                 fmo_radio_field,
-                costs_graph_layout,
+                html.Div(className="wrapper", id="costs--wrapper", children=[costs_graph_layout]),
             ],
         ),
+        html.H2("About these charts", className="title is-3"),
+        about,
         footer,
     ],
 )

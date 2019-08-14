@@ -92,6 +92,18 @@ label.hidden {
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
+	margin: 1ex 0;
+	padding: 1em 0 1ex;
 	background: #fff;
 	z-index: 5000;
+	border-bottom: 1px solid #eee;
+}
+
+.wrapper {
+	margin-bottom: 2em;
+	min-height: 550px;
+}
+
+.historical {
+	padding-top: 1em;
 }
