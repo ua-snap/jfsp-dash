@@ -266,7 +266,7 @@ def generate_costs(scenario, treatment_options, option):
         boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "Cost ($)", "range": [0, 409000000]},
+        yaxis={"title": "Cost ($)"},
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
     return {"data": data_traces, "layout": graph_layout}
