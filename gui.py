@@ -135,12 +135,19 @@ The data used in this tool comes from [ALFRESCO](https://www.snap.uaf.edu/method
 
 The story that the projected data are telling is that inter-annual variabiliy of fire size is decreasing&mdash;configerous vegetation is being relegated to optimized, evenly-spaced patches over time.
 
-Costs are estimated by randomly assigning prior years&rsquo; known costs for different the different fire management options to each future year.  For example, if we know that fire costs for Limited option areas were $100/acre, $200/acre, and $1000/acre in the past, we can randomly assign future years to one of these values to estimate possible future costs.
+Costs are estimated by randomly assigning prior years&rsquo; known costs for different the different fire management options (FMOs) to each future year.  For example, if we know that fire costs for Limited option areas were $100/acre, $200/acre, and $1000/acre in the past, we can randomly assign future years to one of these values to estimate possible future costs.  Fire management option polygons from 2017 are used in this data.
 
 ''', className="about is-size-5 content")
 
 graph_layout = html.Div(className="graph", children=[dcc.Graph(id="total_area_burned")])
 about_area = dcc.Markdown('''
+
+The chart below shows total area burned for the selected region, including the historical results of the model run (1950&ndash;2100).
+
+''', className="about is-size-5 content")
+
+ia_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="ia")])
+about_ia = dcc.Markdown('''
 
 The line in the chart below shows inter-annual variability, which can be seen to be decreasing over time.
 
@@ -194,14 +201,17 @@ layout = html.Div(
             children=[
                 html.H4("Total area burned", className="title is-4 first"),
                 about_area,
-                html.Div(className="wrapper", id="area_burned--wrapper", children=[graph_layout]),
+                html.Div(className="wrapper", children=[graph_layout]),
+                html.H4("Inter-annual variability", className="title is-4 first"),
+                about_ia,
+                html.Div(className="wrapper", children=[ia_graph_layout]),
                 html.H4("Vegetation type ratio", className="title is-4"),
                 about_veg,
-                html.Div(className="wrapper", id="veg_ratio--wrapper", children=[veg_graph_layout]),
+                html.Div(className="wrapper", children=[veg_graph_layout]),
                 html.H4("Future costs, full model domain", className="title is-4"),
                 about_future_costs,
                 fmo_radio_field,
-                html.Div(className="wrapper", id="costs--wrapper", children=[costs_graph_layout]),
+                html.Div(className="wrapper", children=[costs_graph_layout]),
             ],
         ),
         html.H2("About these charts", className="title is-3"),

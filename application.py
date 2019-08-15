@@ -36,14 +36,12 @@ app.layout = layout
     Output("total_area_burned", "figure"),
     inputs=[
         Input("region", "value"),
-        Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "value"),
         Input("treatment_options_checklist", "values"),
     ],
 )
-def generate_total_area_burned(region, show_historical, scenario, treatment_options):
+def generate_total_area_burned(region, scenario, treatment_options):
     """ Regenerate plot data for area burned """
-    show_historical = "show_historical" in show_historical
     data_traces = []
 
     # Subset historical data
@@ -52,6 +50,10 @@ def generate_total_area_burned(region, show_historical, scenario, treatment_opti
         & (total_area_burned.treatment == luts.historical_categories[1])
     ]
 
+    # For each trace, draw a box plot but don't repeat the
+    # plots for historical stuff.  Use a counter to decide
+    # if to trim the data set.
+    counter = 0
     for treatment in treatment_options:
         dt = pd.DataFrame()
         t = total_area_burned[
@@ -61,27 +63,17 @@ def generate_total_area_burned(region, show_historical, scenario, treatment_opti
             & (total_area_burned.treatment == treatment)
         ]
 
-        # Always merge the historical data for computing the
-        # rolling std so we get meaningful results for the 2010s.
-        merged = pd.concat([h.area, t.area])
-        rolling_std = merged.rolling(rolling_window, center=True).std()
-
-        # Align start/end ranges with the decadal plots
-        if show_historical:
-            start_year = 1955
-            t = t.append(h)
-        else:
-            start_year = 2010
-
-        end_year = 2090
-        rolling_std = rolling_std.loc[start_year:end_year]
+        t = t.append(h)
+        if counter > 0:
+            t["year"] = pd.to_numeric(t.index)
+            t = t[(t.year >= 2010) & (t.year <= 2100)]
 
         # Trick to group the data into decadal buckets,
         # to match what Dash wants for box plots.
         t = t.groupby(t.index // 10 * 10)
         for key, values in t:  # pylint: disable=unused-variable
             a = t.get_group(key)
-            a["decade"] = key
+            a = a.assign(decade=key)
             dt = dt.append(a)
 
         data_traces.extend(
@@ -90,7 +82,57 @@ def generate_total_area_burned(region, show_historical, scenario, treatment_opti
                     name="Area burned, " + luts.treatment_options[treatment],
                     x=dt.decade,
                     y=dt.area.apply(luts.to_acres),
-                ),
+                )
+            ]
+        )
+        counter += 1
+
+    graph_layout = go.Layout(
+        title="Total area burned, "
+        + luts.regions[region]
+        + ", "
+        + luts.scenarios[scenario]
+        + ", "
+        + luts.models[luts.MODEL_AVG],
+        showlegend=True,
+        legend_orientation="h",
+        boxmode="group",
+        legend={"font": {"family": "Open Sans", "size": 10}},
+        xaxis={"title": "Year"},
+        yaxis={"title": "Acres", "range": [0, 3500000]},
+        height=550,
+        margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
+    )
+    return {"data": data_traces, "layout": graph_layout}
+
+
+@app.callback(
+    Output("ia", "figure"),
+    inputs=[
+        Input("region", "value"),
+        Input("scenarios_checklist", "value"),
+        Input("treatment_options_checklist", "values"),
+    ],
+)
+def generate_ia(region, scenario, treatment_options):
+    """ Regenerate plot data for area burned """
+    data_traces = []
+
+    for treatment in treatment_options:
+        t = total_area_burned[
+            (total_area_burned.region == region)
+            & (total_area_burned.scenario == scenario)
+            & (total_area_burned.model == luts.MODEL_AVG)
+            & (total_area_burned.treatment == treatment)
+        ]
+
+        # Always merge the historical data for computing the
+        # rolling std so we get meaningful results for the 2010s.
+        rolling_std = t.area.rolling(rolling_window, center=True).std()
+        rolling_std = rolling_std.loc[2019:2095]
+
+        data_traces.extend(
+            [
                 {
                     "x": rolling_std.index.tolist(),
                     "y": rolling_std.apply(luts.to_acres),
@@ -106,7 +148,7 @@ def generate_total_area_burned(region, show_historical, scenario, treatment_opti
         )
 
     graph_layout = go.Layout(
-        title="Total area burned, "
+        title="Inter-annual variability, "
         + luts.regions[region]
         + ", "
         + luts.scenarios[scenario]
@@ -117,7 +159,7 @@ def generate_total_area_burned(region, show_historical, scenario, treatment_opti
         boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "Acres", "range": [0, 3500000]},
+        yaxis={"title": "Acres"},
         height=550,
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
@@ -222,7 +264,7 @@ def generate_costs(scenario, treatment_options, option):
 
         for key, values in hc:  # pylint: disable=unused-variable
             d = hc.get_group(key)
-            d["decade"] = key
+            d = d.assign(decade=key)
             dt = dt.append(d)
 
         data_traces.extend(
