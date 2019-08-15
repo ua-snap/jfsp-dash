@@ -170,14 +170,12 @@ def generate_ia(region, scenario, treatment_options):
     Output("veg_counts", "figure"),
     inputs=[
         Input("region", "value"),
-        Input("historical_checkbox", "values"),
         Input("scenarios_checklist", "value"),
         Input("treatment_options_checklist", "values"),
     ],
 )
-def generate_veg_counts(region, show_historical, scenario, treatment_options):
+def generate_veg_counts(region, scenario, treatment_options):
     """ Display veg count graph """
-    show_historical = "show_historical" in show_historical
     data_traces = []
 
     # Future!
@@ -201,22 +199,6 @@ def generate_veg_counts(region, show_historical, scenario, treatment_options):
                             luts.models[luts.MODEL_AVG],
                         ]
                     ),
-                }
-            ]
-        )
-
-    # Past!
-    if show_historical:
-        vc = veg_counts.loc[
-            (veg_counts["treatment"] == "cru_tx0") & (veg_counts["region"] == region)
-        ]
-        data_traces.extend(
-            [
-                {
-                    "x": vc.index.tolist(),
-                    "y": vc["coniferous"] / vc["deciduous"],
-                    "type": "line",
-                    "name": "Historical",
                 }
             ]
         )

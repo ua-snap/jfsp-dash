@@ -45,22 +45,6 @@ fmo_radio_field = html.Div(
     ],
 )
 
-historical_checkbox = dcc.Checklist(
-    id="historical_checkbox",
-    className="checkbox",
-    labelClassName="checkbox historical",
-    options=[{"label": "Show historical", "value": "show_historical"}],
-    values=[],
-)
-
-historical_field = html.Div(
-    className="field",
-    children=[
-        html.Label("Show historical model data?", className="label hidden"),
-        html.Div(className="control tight", children=[historical_checkbox]),
-    ],
-)
-
 region_dropdown = dcc.Dropdown(
     id="region",
     options=[{"label": luts.regions[key], "value": key} for key in luts.regions],
@@ -163,7 +147,7 @@ A higher coniferous/deciduous ratio indicates more fuel for wildfires.
 costs_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="costs")])
 about_future_costs = dcc.Markdown('''
 
-This chart applies to the full spatial domain of ALFRESCO, and is not subset by the region selected in the drop-down menu.  This chart does not show historical data.  Scroll down for more information on how costs are estimated.
+This chart applies to the full spatial domain of ALFRESCO, and is not subset by the region selected in the drop-down menu.  Scroll down for more information on how costs are estimated.
 
 ''', className="about is-size-5 content")
 
@@ -181,7 +165,6 @@ layout = html.Div(
                             className="column is-one-third",
                             children=[
                                 region_dropdown_field,
-                                historical_field,
                             ],
                         ),
                         html.Div(
