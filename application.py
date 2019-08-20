@@ -232,10 +232,9 @@ def generate_veg_counts(region, scenario, treatment_options):
 def generate_costs(scenario, treatment_options, option):
     """ Generate costs graph """
     data_traces = []
-    dt = pd.DataFrame()
 
     for treatment in treatment_options:
-        # for option in luts.fmo_options:
+        dt = pd.DataFrame()
         hc = costs.loc[
             (costs["treatment"] == treatment)
             & (costs["scenario"] == scenario)
