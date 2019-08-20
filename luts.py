@@ -74,7 +74,7 @@ veg_types = {"deciduous": "Deciduous", "coniferous": "Coniferous"}
 treatment_options = {
     "gcm_tx0": "No change (TX0)",
     "gcm_tx1": "More Full Suppression (TX1)",
-    "tx2": "No Full Suppression (TX2)",
+    "gcm_tx2": "No Full Suppression (TX2)",
 }
 
 """

@@ -98,7 +98,7 @@ def get_cost_df(data_dir, year_range, treatment, scenario, model):
             tidied_costs.append(tidied)
         else:
             print("No FMO file found {}".format(filename))
-            exit()
+            # Continue, ignoring missing values
 
     return tidied_costs
 
