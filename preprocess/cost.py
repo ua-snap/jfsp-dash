@@ -18,11 +18,11 @@ import numpy as np
 import pandas as pd
 import luts
 
-# Create seeded pseudorandom map of years to [2011...2017]
+# Create seeded pseudorandom map of years to [2011...2016]
 # Save to CSV so this mapping can be checked.
 np.random.seed(luts.random_seed)
 random_cost_map = pd.DataFrame(index=pd.RangeIndex(start=1950, stop=2100))
-random_cost_map["year"] = np.random.randint(2011, 2018, random_cost_map.shape[0])
+random_cost_map["year"] = np.random.randint(2011, 2017, random_cost_map.shape[0])
 random_cost_map.to_csv("random_year_map.csv")
 
 
