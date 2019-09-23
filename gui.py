@@ -111,7 +111,8 @@ This is a page footer, where we'd put legal notes and other items.
     ],
 )
 
-about = dcc.Markdown('''
+about = dcc.Markdown(
+    """
 
 How might wildfires in Alaska change over time?  How do different fire management decisions impact costs?  This tool has interactive graphs showing projected future fire behavior, cost, and vegetation indices.
 
@@ -121,35 +122,49 @@ The story that the projected data are telling is that inter-annual variabiliy of
 
 Costs are estimated by randomly assigning prior years&rsquo; known costs for different the different fire management options (FMOs) to each future year.  For example, if we know that fire costs for Limited option areas were $100/acre, $200/acre, and $1000/acre in the past, we can randomly assign future years to one of these values to estimate possible future costs.  Fire management option polygons from 2017 are used in this data.
 
-''', className="about is-size-5 content")
+""",
+    className="about is-size-5 content",
+)
 
 graph_layout = html.Div(className="graph", children=[dcc.Graph(id="total_area_burned")])
-about_area = dcc.Markdown('''
+about_area = dcc.Markdown(
+    """
 
 The chart below shows total area burned for the selected region, including the historical results of the model run (1950&ndash;2100).
 
-''', className="about is-size-5 content")
+""",
+    className="about is-size-5 content",
+)
 
 ia_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="ia")])
-about_ia = dcc.Markdown('''
+about_ia = dcc.Markdown(
+    """
 
 The line in the chart below shows inter-annual variability, which can be seen to be decreasing over time.
 
-''', className="about is-size-5 content")
+""",
+    className="about is-size-5 content",
+)
 
 veg_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="veg_counts")])
-about_veg = dcc.Markdown('''
+about_veg = dcc.Markdown(
+    """
 
 A higher coniferous/deciduous ratio indicates more fuel for wildfires.
 
-''', className="about is-size-5 content")
+""",
+    className="about is-size-5 content",
+)
 
 costs_graph_layout = html.Div(className="graph", children=[dcc.Graph(id="costs")])
-about_future_costs = dcc.Markdown('''
+about_future_costs = dcc.Markdown(
+    """
 
 This chart applies to the full spatial domain of ALFRESCO, and is not subset by the region selected in the drop-down menu.  Scroll down for more information on how costs are estimated.
 
-''', className="about is-size-5 content")
+""",
+    className="about is-size-5 content",
+)
 
 layout = html.Div(
     className="container",
@@ -163,9 +178,7 @@ layout = html.Div(
                     children=[
                         html.Div(
                             className="column is-one-third",
-                            children=[
-                                region_dropdown_field,
-                            ],
+                            children=[region_dropdown_field],
                         ),
                         html.Div(
                             className="column is-one-third",

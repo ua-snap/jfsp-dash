@@ -159,10 +159,7 @@ def process(data_dir):
                 tidied = pd.DataFrame(index=luts.future_year_range)
                 tidied.index.name = "year"
                 tidied = tidied.assign(
-                    treatment=treatment,
-                    scenario=scenario,
-                    model=model,
-                    option="total",
+                    treatment=treatment, scenario=scenario, model=model, option="total"
                 )
                 temp_costs_column = (
                     costs[

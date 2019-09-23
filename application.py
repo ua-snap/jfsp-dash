@@ -143,7 +143,7 @@ def generate_ia(region, scenario, treatment_options):
                             + luts.treatment_options[treatment]
                         ]
                     ),
-                },
+                }
             ]
         )
 
