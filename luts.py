@@ -4,8 +4,8 @@ Lookup tables with key names and human-readable names
 # pylint: disable=C0103,import-error
 
 # Fragments used in the data preprocessing scripts.
-import pandas as pd
 import math
+import pandas as pd
 
 STATEWIDE = "AllFMZs"
 MODEL_AVG = "5modelavg"
@@ -24,6 +24,13 @@ def to_acres(km2):
     if math.isnan(km2):
         return 0
     return round(km2 * 247.11)
+
+
+def to_hectares(km2):
+    """ square KM to acres """
+    if math.isnan(km2):
+        return 0
+    return km2 * 100
 
 
 zones = {
@@ -90,3 +97,32 @@ fmo_costs = {
 }
 
 fmo_options = {"C": "Critical", "F": "Full", "L": "Limited"}
+
+# Colors for the stacked box/line plots
+iav_colors = ["#44a083", "#ea6b40", "#6b80a9"]
+
+fig_download_configs = dict(filename="tbd", width="1000", scale=2)
+fig_configs = dict(
+    displayModeBar=True,
+    showSendToCloud=False,
+    toImageButtonOptions=fig_download_configs,
+    modeBarButtonsToRemove=[
+        "zoom2d",
+        "pan2d",
+        "select2d",
+        "lasso2d",
+        "zoomIn2d",
+        "zoomOut2d",
+        "autoScale2d",
+        "resetScale2d",
+        "hoverClosestCartesian",
+        "hoverCompareCartesian",
+        "hoverClosestPie",
+        "hoverClosest3d",
+        "hoverClosestGl2d",
+        "hoverClosestGeo",
+        "toggleHover",
+        "toggleSpikelines",
+    ],
+    displaylogo=False,
+)
