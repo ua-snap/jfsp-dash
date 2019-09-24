@@ -99,7 +99,7 @@ fmo_costs = {
 fmo_options = {"C": "Critical", "F": "Full", "L": "Limited"}
 
 # Colors for the stacked box/line plots
-iav_colors = ["#44a083", "#ea6b40", "#6b80a9"]
+iav_colors = ["#332288", "#117733", "#882255"]
 
 fig_download_configs = dict(filename="tbd", width="1000", scale=2)
 fig_configs = dict(
