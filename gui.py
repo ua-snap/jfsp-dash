@@ -113,7 +113,7 @@ This is a page footer, where we'd put legal notes and other items.
 
 intro_about = dcc.Markdown(
     """
-    How might wildfires in Alaska change over time?  How do different fire management decisions impact costs?  This tool has interactive graphs showing projected future fire behavior, cost, and vegetation indices.
+    **This tool is designed to give insight to questions such as:** How might wildfires in Alaska change over time? Will birch and aspen replace spruce as the dominant forest type? How do different fire management decisions impact costs?
     """,
     className="about is-size-4 content",
 )
@@ -121,11 +121,53 @@ intro_about = dcc.Markdown(
 about = dcc.Markdown(
     """
 
-The data used in this tool comes from [ALFRESCO](https://www.snap.uaf.edu/methods/ecosystem-modeling), a software model that simulates the responses of subarctic and boreal vegetation to climatic changes.  We use the model to produce future projections of fire size and vegetation types under varying climate scenarios and fire treatment options.
+### The modeling behind this tool
 
-The story that the projected data are telling is that inter-annual variabiliy of fire size is decreasing&mdash;coniferous vegetation is being relegated to optimized, evenly-spaced patches over time.
+Here we summarize  outputs from ALFRESCO (ALaska FRame-based EcoSystem COde), a spatially explicit landscape-scale wildfire model. We use ALFRESCO to simulate wildfire and vegetation dynamics in response to transient changes in climate, across a wide range of future conditions.
 
-Costs are estimated by randomly assigning prior years&rsquo; known costs for different the different fire management options (FMOs) to each future year.  For example, if we know that fire costs for Limited option areas were $100/acre, $200/acre, and $1000/acre in the past, we can randomly assign future years to one of these values to estimate possible future costs.  Fire management option polygons from 2017 are used in this data.
+#### What this tool does
+
+ * Addresses the natural variability of fire by visualizing broad trends and patterns
+ * Displays future projections using the average of 5 top performing GCMs, plus 10-year summaries
+ * Provides more exploration opportunities by including 3 different climate scenarios, or RCPs, as well as “treatments”.
+ * Provides the ability to subset the analysis by Fire Management Zones, Ecoregions, or look at statewide results.
+
+#### Treatment options TX0, TX1, TX2
+
+ALFRESCO model runs include 3 experimental “treatments” that simulate alteration of the fire management options: Critical, Full, Modified, and Limited.
+
+ * TX0&mdash;No Change: No change in current management approaches. Current fire management options are used into the future.
+ * TX1&mdash;More Full Suppression: Current Full suppression areas were extended out by 10km and were used into the future. This represents a large increase in suppression efforts as more fires would fall into the Full area requiring more suppression actions.
+ * TX2&mdash;No Full Suppression: Full and Modified suppression areas were re-assigned as Limited, Critical areas remained Critical, and these were used into the future. This represents a large decrease in suppression efforts, as many fires would fall into the Limited area, but many may burn into the Critical area.
+
+#### General Circulation Models (GCMs) and how they fit into this work
+
+GCMs are used to depict how temperature and precipitation respond to changing levels of various gases in the atmosphere. GCMs use future compositions of gases in the atmosphere to make projections of future climate. For this work, GCMs provide projections of future precipitation that drive wildfire activity in the model.
+
+More info: Intergovernmental Panel on Climate Change GCM guide
+
+#### Representative Concentration Pathways (RCPs) and how they fit into this work
+
+RCPs are used to characterize the consequences of different assumptions about human population growth and economic development. In particular, economic development associated with energy use—energy amounts and sources—is an important driver of future climate. We consider 3 RCPs here (4.5, 6.0, and 8.5).
+
+ * RCP 4.5 represents an aggressive reduction in the emission of greenhouse gases like CO2 and methane.
+ * RCP 8.5 represents increases in the population and a continuation of the use of energy sources that emit large quantities of greenhouse gases.
+ * RCP 6.0 lies somewhere in between.
+
+More info: Intergovernmental Panel on Climate Change RCP Definition
+
+#### What are Fire Management Zones?
+
+These regions are the current Fire Management Zones for Alaska. For more information, please see the zone coverage maps created by the US Bureau of Land Management / Alaska Fire Service.
+
+picture placeholder
+
+
+#### What are Ecoregions?
+
+Ecoregions are areas where ecosystems (and the type, quality, and quantity of environmental resources) are generally similar (Omernik 1987).
+
+picture placeholder2
 
 """,
     className="about is-size-5 content",
@@ -215,7 +257,6 @@ layout = html.Div(
                 html.Div(className="wrapper", children=[veg_graph_layout]),
             ],
         ),
-        html.H2("About these charts", className="title is-3"),
         about,
         footer,
     ],
