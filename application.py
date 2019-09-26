@@ -98,7 +98,7 @@ def generate_total_area_burned(region, scenario, treatment_options):
 
         fig.add_trace(
             go.Box(
-                name="MEDIAN OF REPS, MEDIAN OF MODELS -- Area burned, " + luts.treatment_options[treatment],
+                name="Area burned, " + luts.treatment_options[treatment],
                 x=dt.decade,
                 y=dt.area.apply(luts.to_hectares),
                 marker_color=luts.iav_colors[counter],
