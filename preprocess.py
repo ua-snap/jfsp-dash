@@ -18,5 +18,5 @@ import cost
 data_dir = "data"
 
 area.process(data_dir)
-veg.process(data_dir)
-cost.process(data_dir)
+# veg.process(data_dir)
+# cost.process(data_dir)

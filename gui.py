@@ -256,8 +256,6 @@ layout = html.Div(
                 fmo_radio_field,
                 html.Div(className="wrapper", children=[veg_graph_layout]),
             ],
-        ),
-        about,
-        footer,
+        )
     ],
 )
