@@ -47,9 +47,26 @@ def generate_total_area_burned(region, scenario, treatment_options):
     combined with inter-annual variability.
 
     """
-
-
     fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    # Add historical trace
+    fig.add_trace(
+        go.Scatter(
+            {
+                "x": list(range(2015, 2095)),
+                "y": [112200] * 80, # historical median
+                "mode": "lines",
+                "name": "Historical average (1950-2013)",
+                "line": {
+                    "width": 3,
+                    "color": "rgba(0, 0, 0, 0.2)"
+                },
+                "showlegend": False,
+                "hoverinfo": "skip"
+            }
+        ),
+        secondary_y=False,
+    )
 
     # For each trace, draw a box plot but don't repeat the
     # plots for historical stuff.  Use a counter to decide
@@ -64,27 +81,8 @@ def generate_total_area_burned(region, scenario, treatment_options):
             & (total_area_burned.treatment == treatment)
         ]
 
-        # Add inter-annual variability
-        rolling_std = t.area.rolling(rolling_window, center=True).std()
-        rolling_std = rolling_std.loc[2020:2095]
-
-        fig.add_trace(
-            go.Scatter(
-                {
-                    "x": rolling_std.index.tolist(),
-                    "y": rolling_std.apply(luts.to_hectares).tolist(),
-                    "mode": "lines",
-                    "name": ", ".join(
-                        [
-                            "10-year rolling standard deviation, "
-                            + luts.treatment_options[treatment]
-                        ]
-                    ),
-                    "marker_color": luts.iav_colors[counter],
-                }
-            ),
-            secondary_y=True,
-        )
+        # copy to use later
+        p = t.copy()
 
         t["year"] = pd.to_numeric(t.index)
         t = t[(t.year >= 2020) & (t.year <= 2100)]
@@ -107,25 +105,29 @@ def generate_total_area_burned(region, scenario, treatment_options):
             secondary_y=False,
         )
 
-        counter += 1
+        # Add inter-annual variability
+        rolling_std = p.area.rolling(rolling_window, center=True).std()
+        rolling_std = rolling_std.loc[2020:2095]
 
-    # print(total_area_burned)
-
-    # Add historical trace
-    fig.add_trace(
+        fig.add_trace(
             go.Scatter(
                 {
-                    "x": list(range(2014, 2100)),
-                    "y": [112200] * 86, # historical median
+                    "x": rolling_std.index.tolist(),
+                    "y": rolling_std.apply(luts.to_hectares).tolist(),
                     "mode": "lines",
-                    "name": "Historical average (1950-2013)",
-                    "marker_color": "#aaaaaa",
-                    "showlegend": False,
-                    "hoverinfo": "skip"
+                    "name": ", ".join(
+                        [
+                            "10-year rolling standard deviation, "
+                            + luts.treatment_options[treatment]
+                        ]
+                    ),
+                    "marker_color": luts.iav_colors[counter],
                 }
             ),
-            secondary_y=False,
+            secondary_y=True,
         )
+
+        counter += 1
 
     fig.update_layout(
         title="Total area burned, "
@@ -184,32 +186,6 @@ def generate_veg_counts(region, scenario, treatment_options, option):
 
     counter = 0  # for color indices
     for treatment in treatment_options:
-        vc = veg_counts.loc[
-            (veg_counts["treatment"] == treatment)
-            & (veg_counts["scenario"] == scenario)
-            & (veg_counts["model"] == luts.MODEL_AVG)
-            & (veg_counts["region"] == luts.STATEWIDE)
-        ]
-        vc["year"] = pd.to_numeric(vc.index)
-        vc = vc[(vc.year >= 2020) & (vc.year <= 2100)]
-        fig.add_trace(
-            go.Scatter(
-                {
-                    "x": vc.index.tolist(),
-                    "y": vc["coniferous"] / vc["deciduous"],
-                    "mode": "lines",
-                    "name": ", ".join(
-                        [
-                            luts.treatment_options[treatment],
-                            luts.scenarios[scenario],
-                            luts.models[luts.MODEL_AVG],
-                        ]
-                    ),
-                    "marker_color": luts.iav_colors[counter],
-                }
-            ),
-            secondary_y=True,
-        )
 
         dt = pd.DataFrame()
         hc = costs.loc[
@@ -229,13 +205,41 @@ def generate_veg_counts(region, scenario, treatment_options, option):
 
         fig.add_trace(
             go.Box(
-                name=luts.treatment_options[treatment],
+                name="Total costs, " + luts.treatment_options[treatment],
                 x=dt.decade,
                 y=dt.cost,
                 marker_color=luts.iav_colors[counter],
             ),
             secondary_y=False,
         )
+
+        vc = veg_counts.loc[
+            (veg_counts["treatment"] == treatment)
+            & (veg_counts["scenario"] == scenario)
+            & (veg_counts["model"] == luts.MODEL_AVG)
+            & (veg_counts["region"] == luts.STATEWIDE)
+        ]
+        vc["year"] = pd.to_numeric(vc.index)
+        vc = vc[(vc.year >= 2020) & (vc.year <= 2100)]
+        fig.add_trace(
+            go.Scatter(
+                {
+                    "x": vc.index.tolist(),
+                    "y": vc["coniferous"] / vc["deciduous"],
+                    "mode": "lines",
+                    "name": ", ".join(
+                        [
+                            "Vegetation ratio",
+                            luts.treatment_options[treatment],
+                            luts.models[luts.MODEL_AVG],
+                        ]
+                    ),
+                    "marker_color": luts.iav_colors[counter],
+                }
+            ),
+            secondary_y=True,
+        )
+
         counter += 1
 
     if option == "total":
