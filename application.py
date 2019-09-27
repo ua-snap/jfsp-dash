@@ -101,7 +101,7 @@ def generate_total_area_burned(region, scenario, treatment_options):
         boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}, "y": -0.15},
         xaxis={"title": "Year"},
-        yaxis={"title": "Acres", "range": [0, 1800000]},
+        yaxis={"title": "Acres", "range": [0, 1900000]},
         height=550,
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
