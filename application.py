@@ -7,7 +7,7 @@ See luts.py for the lookup tables which drive both the data ingest and GUI.
 See preprocess.py for the data structure that this code assumes!
 
 """
-
+import os
 import math
 import plotly.graph_objs as go
 from dash.dependencies import Input, Output
@@ -23,8 +23,10 @@ costs = pd.read_pickle("costs.pickle")
 # Window for doing rolling average/std
 rolling_window = 10
 
-app = dash.Dash(__name__) 
-app.config.requests_pathname_prefix = os.environ["REQUESTS_PATHNAME_PREFIX"]
+app = dash.Dash(__name__)
+app = dash.Dash(
+    __name__, requests_pathname_prefix=os.environ["REQUESTS_PATHNAME_PREFIX"]
+)
 
 # AWS Elastic Beanstalk looks for application by default,
 # if this variable (application) isn't set you will get a WSGI error.
