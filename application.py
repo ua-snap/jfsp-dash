@@ -48,6 +48,7 @@ def generate_total_area_burned(region, scenario, treatment_options):
 
     """
 
+
     fig = make_subplots(specs=[[{"secondary_y": True}]])
 
     # For each trace, draw a box plot but don't repeat the
@@ -108,6 +109,24 @@ def generate_total_area_burned(region, scenario, treatment_options):
 
         counter += 1
 
+    # print(total_area_burned)
+
+    # Add historical trace
+    fig.add_trace(
+            go.Scatter(
+                {
+                    "x": list(range(2014, 2100)),
+                    "y": [112200] * 86, # historical median
+                    "mode": "lines",
+                    "name": "Historical average (1950-2013)",
+                    "marker_color": "#aaaaaa",
+                    "showlegend": False,
+                    "hoverinfo": "skip"
+                }
+            ),
+            secondary_y=False,
+        )
+
     fig.update_layout(
         title="Total area burned, "
         + luts.regions[region]
@@ -126,12 +145,25 @@ def generate_total_area_burned(region, scenario, treatment_options):
         paper_bgcolor="#fff",
         plot_bgcolor="rgba(0,0,0,0)",
         margin={"l": 75, "r": 75, "b": 75, "t": 50, "pad": 10},
+        annotations=[
+            go.layout.Annotation(
+                x=.115,
+                y=112200,
+                ax=-20,
+                ay=40,
+                showarrow=True,
+                arrowhead=7,
+                xref="paper",
+                yref="y",
+                text="Historical median, 112.2k ha",
+            )
+        ]
     )
 
     fig.update_yaxes(
-        title_text="<br>Inter-annual variability, hectares", secondary_y=True
+        title_text="<br>Annual inter-annual variability, hectares", secondary_y=True
     )
-    fig.update_yaxes(title_text="Area burned, hectares<br>&nbsp;", secondary_y=False)
+    fig.update_yaxes(title_text="Decadal area burned, hectares<br>&nbsp;", secondary_y=False)
 
     return fig
 
