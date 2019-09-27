@@ -23,14 +23,16 @@ costs = pd.read_pickle("costs.pickle")
 # Window for doing rolling average/std
 rolling_window = 10
 
-app = dash.Dash(__name__)
+app = dash.Dash(
+    __name__, requests_pathname_prefix=os.environ["REQUESTS_PATHNAME_PREFIX"]
+)
+
 # AWS Elastic Beanstalk looks for application by default,
 # if this variable (application) isn't set you will get a WSGI error.
 application = app.server
 
-app.title = "JFSP"
+app.title = "Alaska Wildfire Management - Possible Futures"
 app.layout = layout
-
 
 @app.callback(
     Output("total_area_burned", "figure"),
