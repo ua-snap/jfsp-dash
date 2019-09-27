@@ -37,7 +37,7 @@ app.layout = layout
     inputs=[
         Input("region", "value"),
         Input("scenarios_checklist", "value"),
-        Input("treatment_options_checklist", "values"),
+        Input("treatment_options_checklist", "value"),
     ],
 )
 def generate_total_area_burned(region, scenario, treatment_options):
@@ -99,7 +99,7 @@ def generate_total_area_burned(region, scenario, treatment_options):
         boxmode="group",
         legend={"font": {"family": "Open Sans", "size": 10}},
         xaxis={"title": "Year"},
-        yaxis={"title": "Acres", "range": [0, 3500000]},
+        yaxis={"title": "Acres", "range": [0, 1800000]},
         height=550,
         margin={"l": 50, "r": 50, "b": 50, "t": 50, "pad": 4},
     )
@@ -111,7 +111,7 @@ def generate_total_area_burned(region, scenario, treatment_options):
     inputs=[
         Input("region", "value"),
         Input("scenarios_checklist", "value"),
-        Input("treatment_options_checklist", "values"),
+        Input("treatment_options_checklist", "value"),
     ],
 )
 def generate_ia(region, scenario, treatment_options):
@@ -171,7 +171,7 @@ def generate_ia(region, scenario, treatment_options):
     inputs=[
         Input("region", "value"),
         Input("scenarios_checklist", "value"),
-        Input("treatment_options_checklist", "values"),
+        Input("treatment_options_checklist", "value"),
     ],
 )
 def generate_veg_counts(region, scenario, treatment_options):
@@ -225,7 +225,7 @@ def generate_veg_counts(region, scenario, treatment_options):
     Output("costs", "figure"),
     inputs=[
         Input("scenarios_checklist", "value"),
-        Input("treatment_options_checklist", "values"),
+        Input("treatment_options_checklist", "value"),
         Input("fmo_radio", "value"),
     ],
 )

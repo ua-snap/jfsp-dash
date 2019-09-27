@@ -82,7 +82,7 @@ def get_tidied_veg_count_df(
 
     if os.path.isfile(deciduous_filename):
         deciduous = pd.read_csv(deciduous_filename, index_col=0)
-        tidied = tidied.assign(deciduous=deciduous.mean(axis=1))
+        tidied = tidied.assign(deciduous=deciduous.median(axis=1))
     else:
         print_vegcount_log(
             "NO DECIDUOUS found", spatial_prefix, treatment, scenario, model, region
@@ -94,7 +94,7 @@ def get_tidied_veg_count_df(
         white_spruce = pd.read_csv(white_spruce_filename, index_col=0)
         black_spruce = pd.read_csv(black_spruce_filename, index_col=0)
         tidied = tidied.assign(
-            coniferous=white_spruce.mean(axis=1) + black_spruce.mean(axis=1)
+            coniferous=white_spruce.median(axis=1) + black_spruce.median(axis=1)
         )
     elif os.path.isfile(white_spruce_filename):
         print_vegcount_log(
@@ -106,7 +106,7 @@ def get_tidied_veg_count_df(
             region,
         )
         white_spruce = pd.read_csv(white_spruce_filename, index_col=0)
-        tidied = tidied.assign(coniferous=white_spruce.mean(axis=1))
+        tidied = tidied.assign(coniferous=white_spruce.median(axis=1))
     elif os.path.isfile(black_spruce_filename):
         print_vegcount_log(
             "Only BLACK spruce found",
@@ -117,7 +117,7 @@ def get_tidied_veg_count_df(
             region,
         )
         black_spruce = pd.read_csv(black_spruce_filename, index_col=0)
-        tidied = tidied.assign(coniferous=black_spruce.mean(axis=1))
+        tidied = tidied.assign(coniferous=black_spruce.median(axis=1))
     else:
         print_vegcount_log(
             "NEITHER black or white spruce found",
@@ -194,7 +194,7 @@ def process(data_dir):
                             & (veg_counts.region == region)
                         ]
                         .groupby("year")
-                        .mean()["deciduous"]
+                        .median()["deciduous"]
                     )
                     tidied["coniferous"] = (
                         veg_counts[
@@ -203,7 +203,7 @@ def process(data_dir):
                             & (veg_counts.region == region)
                         ]
                         .groupby("year")
-                        .mean()["coniferous"]
+                        .median()["coniferous"]
                     )
                     temp_veg_dfs.append(tidied)
 

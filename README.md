@@ -35,14 +35,6 @@ eb create # if needed to create environment
 eb deploy
 ```
 
-## Incoming data structure
+### Journal graphics version
 
-Contents of `data/`:
-
-```
-cru_none # historical, no treatments
-cru_tx0 # historical, treatments
-gcm_tx0
-gcm_tx1
-gcm_tx2
-```
+The branch `journal_graphics` has changes to support the specific formatting for the charts for journal publication.

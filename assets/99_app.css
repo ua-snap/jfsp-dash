@@ -65,7 +65,7 @@ label.hidden {
 
 .about {
 	margin-bottom: 1em;
-	max-width: 40em;
+	max-width: 50rem;
 }
 
 .first {
@@ -76,8 +76,8 @@ label.hidden {
 	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
-	margin: 1ex 0;
-	padding: 1em 0 1ex;
+	margin: 2em 0;
+	padding: 1em 0 1em;
 	background: #fff;
 	z-index: 5000;
 	border-bottom: 1px solid #eee;
@@ -90,4 +90,36 @@ label.hidden {
 
 .historical {
 	padding-top: 1em;
+}
+
+.header {
+	margin-top: 1em;
+}
+
+.intro {
+	margin-top: 2rem;
+}
+
+.footer {
+	background-color: #fff;
+	border-top: 1px solid #aaa;
+}
+
+.footer p {
+	width: 50%;
+	margin: 1em auto;
+}
+
+.footer a {
+	display: inline-block;
+}
+
+.footer a img {
+	height: 5em;
+	margin: 1em 1.5em;
+}
+
+.footer a.neptune img {
+	width: 200px;
+	height: 48px;
 }

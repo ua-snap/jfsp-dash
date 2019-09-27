@@ -7,8 +7,6 @@ directory, total_area_burned.pickle (and CSV).
 import os
 import pandas as pd
 import luts
-from pprint import pprint
-import pdb
 
 
 def get_source_filename(data_dir, spatial_prefix, treatment, prefix, postfix, region):
@@ -49,7 +47,7 @@ def process(data_dir):
                 region,
             )
             d = pd.read_csv(input_file, index_col=0)
-            t["area"] = d.mean(axis=1)
+            t["area"] = d.median(axis=1)
             total_area_burned = total_area_burned.append(t)
 
             # Future
@@ -85,12 +83,12 @@ def process(data_dir):
                             region=region,
                         )
                         d = pd.read_csv(input_file, index_col=0)
-                        t["area"] = d.mean(axis=1)
+                        t["area"] = d.median(axis=1)
                         total_area_burned = total_area_burned.append(t)
 
     # Precompute 5-model-averages.
     # Future only.
-    # Create a dataframe with models as columns, then compute mean.
+    # Create a dataframe with models as columns, then compute median.
     for spatial_prefix, regions in luts.spatial_prefix_map.items():
         for region in regions:
             for treatment in luts.treatment_options:
@@ -111,7 +109,7 @@ def process(data_dir):
                             & (total_area_burned.model == model)
                         ].area
 
-                    t["area"] = z.mean(axis=1)
+                    t["area"] = z.median(axis=1)
                     total_area_burned = total_area_burned.append(t)
 
     # Precompute "statewide" totals; for our scenario,

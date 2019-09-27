@@ -3,9 +3,11 @@
 User interface for Dash app.
 
 """
-
+import os
+from string import Template
 import dash_core_components as dcc
 import dash_html_components as html
+import dash_dangerously_set_inner_html as ddsih
 import luts
 
 models = luts.models
@@ -13,17 +15,16 @@ models["5modelavg"] = "5-Model Average"
 fmos = luts.fmo_options
 fmos["total"] = "Total Costs"
 
-navbar = html.Div(
-    className="navbar",
-    role="navigation",
+path_prefix = os.environ["REQUESTS_PATHNAME_PREFIX"]
+
+header = html.Div(
     children=[
         html.Div(
-            className="navbar-brand",
+            className="header",
             children=[
-                html.A(
-                    className="navbar-item",
-                    href="#",
-                    children=[html.Img(src="assets/SNAP_acronym_color.svg")],
+                html.H1(
+                    "Impacts of Climate and Management Options on Wildland Fire Fighting in Alaska: Implications for Operational Costs and Complexity under Future Scenarios",
+                    className="title is-3"
                 )
             ],
         )
@@ -84,7 +85,7 @@ treatment_options_checklist = dcc.Checklist(
         {"label": luts.treatment_options[key], "value": key}
         for key in luts.treatment_options
     ],
-    values=["gcm_tx0"],
+    value=["gcm_tx0"],
 )
 
 treatment_options_checklist_field = html.Div(
@@ -96,32 +97,104 @@ treatment_options_checklist_field = html.Div(
 )
 
 footer = html.Footer(
-    className="footer",
+    className="footer has-text-centered",
     children=[
         html.Div(
-            className="content has-text-centered",
             children=[
-                dcc.Markdown(
-                    """
-This is a page footer, where we'd put legal notes and other items.
-                    """
-                )
-            ],
-        )
+                html.A(
+                    href="http://www.neptuneinc.org",
+                    target="_blank",
+                    className="level-item neptune",
+                    children=[html.Img(src=path_prefix + "assets/neptune.jpg")],
+                ),
+                html.A(
+                    href="https://snap.uaf.edu",
+                    target="_blank",
+                    className="level-item",
+                    children=[html.Img(src=path_prefix + "assets/SNAP_color_all.svg")],
+                ),
+                html.A(
+                    href="https://uaf.edu/uaf/",
+                    target="_blank",
+                    className="level-item",
+                    children=[html.Img(src=path_prefix + "assets/UAF.svg")],
+                ),
+            ]
+        ),
+        dcc.Markdown(
+            """
+UA is an AA/EO employer and educational institution and prohibits illegal discrimination against any individual. [Statement of Nondiscrimination](https://www.alaska.edu/nondiscrimination/)
+            """,
+            className="content is-size-6",
+        ),
     ],
 )
 
-about = dcc.Markdown('''
+intro_text = ddsih.DangerouslySetInnerHTML('''
+<div class="content intro about">
 
-How might wildfires in Alaska change over time?  How do different fire management decisions impact costs?  This tool has interactive graphs showing projected future fire behavior, cost, and vegetation indices.
+    <p class="is-size-5">This tool is designed to give insight to questions such as: How might wildfires in Alaska change over time? Will birch and aspen replace spruce as the dominant forest type? How do different fire management decisions impact costs?</p>
 
-The data used in this tool comes from [ALFRESCO](https://www.snap.uaf.edu/methods/ecosystem-modeling), a software model that simulates the responses of subarctic and boreal vegetation to climatic changes.  We use the model to produce future projections of fire size and vegetation types under varying climate scenarios and fire treatment options.
+    <div class="is-size-6">
+        <p>This website was developed as part of project (#16-1-01-18) funded by the Joint Fire Science Program.</p>
 
-The story that the projected data are telling is that inter-annual variabiliy of fire size is decreasing&mdash;configerous vegetation is being relegated to optimized, evenly-spaced patches over time.
+        <ul>
+            <li>Courtney Schultz, Colorado State University, Principal Investigator</li>
+            <li>Dr. Paul Duffy, Neptune, Inc., Co-Principal Investigator</li>
+            <li>Dr. Nancy Fresco, University of Alaska, Fairbanks, Co-Principal Investigator</li>
+            <li>Randi Jandt, Alaska Fire Science Consortium, Collaborator</li>
+        </ul>
+    </div>
+</div>
+''')
 
-Costs are estimated by randomly assigning prior years&rsquo; known costs for different the different fire management options (FMOs) to each future year.  For example, if we know that fire costs for Limited option areas were $100/acre, $200/acre, and $1000/acre in the past, we can randomly assign future years to one of these values to estimate possible future costs.  Fire management option polygons from 2017 are used in this data.
+about_text = Template('''
+<div class="content is-size-5 about">
+    <h2 class="title is-4">The modeling behind this tool</h2>
+    <p>Here we summarize  outputs from ALFRESCO (ALaska FRame-based EcoSystem COde), a spatially explicit landscape-scale wildfire model. We use ALFRESCO to simulate wildfire and vegetation dynamics in response to transient changes in climate, across a wide range of future conditions.</p>
 
-''', className="about is-size-5 content")
+    <h2 class="title is-4">What this tool does</h2>
+    <ul>
+        <li>Addresses the natural variability of fire by visualizing broad trends and patterns</li>
+        <li>Displays future projections using the average of 5 top performing GCMs, plus 10-year summaries</li>
+        <li>Provides more exploration opportunities by including 3 different climate scenarios, or RCPs, as well as &ldquo;treatments&rdquo;.</li>
+        <li>Provides the ability to subset the analysis by Fire Management Zones, Ecoregions, or look at statewide results.</li>
+    </ul>
+
+    <h2 class="title is-4">Treatment options TX0, TX1, TX2</h2>
+    <p>ALFRESCO model runs include 3 experimental &ldquo;treatments&rdquo; that simulate alteration of the fire management options: Critical, Full, Modified, and Limited.</p>
+
+    <ul>
+        <li><strong>TX0&mdash;Baseline:</strong> Current fire management options are continued into the future, with the exception being all Modified areas are switched to Limited. Otherwise, this scenario assumes minimal changes to current management practices.</li>
+        <li><strong>TX1&mdash;More Full Suppression:</strong> Starting with the TX0 treatment, Full suppression areas were then extended by a 10km buffer and were applied to future simulations. This represents an overall increase in suppression efforts in the affected areas.</li>
+        <li><strong>TX2&mdash;No Full Suppression:</strong> Starting with the TX0 treatment, Full and Modified suppression areas were re-assigned to Limited status for the purpose of future simulations. Critical areas remained unchanged. This represents an overall decrease in suppression efforts.</li>
+    </ul>
+
+    <h2 class="title is-4">General Circulation Models (GCMs) and how they fit into this work</h2>
+    <p>GCMs are used to depict how temperature and precipitation respond to changing levels of various gases in the atmosphere. GCMs use future compositions of gases in the atmosphere to make projections of future climate. For this work, GCMs provide projections of future precipitation that drive wildfire activity in the model.</p>
+    <p>More info: <a href="http://www.ipcc-data.org/guidelines/pages/gcm_guide.html">Intergovernmental Panel on Climate Change GCM guide</a></p>
+
+    <h2 class="title is-4">Representative Concentration Pathways (RCPs) and how they fit into this work</h2>
+    <p>RCPs are used to characterize the consequences of different assumptions about human population growth and economic development. In particular, economic development associated with energy use—energy amounts and sources—is an important driver of future climate. We consider 3 RCPs here (4.5, 6.0, and 8.5).</p>
+    <ul>
+        <li>RCP 4.5 represents an aggressive reduction in the emission of greenhouse gases like CO2 and methane.</li>
+        <li>RCP 8.5 represents increases in the population and a continuation of the use of energy sources that emit large quantities of greenhouse gases.</li>
+        <li>RCP 6.0 lies somewhere in between.</li>
+    </ul>
+
+    <p>More info: <a href="https://www.ipcc-data.org/guidelines/pages/glossary/glossary_r.html">Intergovernmental Panel on Climate Change RCP Definition</a></p>
+
+    <h2 class="title is-4">What are Fire Management Zones?</h2>
+<p>These regions are the current Fire Management Zones for Alaska. For more information, please see <a href="https://afs.ak.blm.gov/fire-management/zones-alaska-zone-coverage-maps.php">the zone coverage</a> maps created by the US Bureau of Land Management / Alaska Fire Service.</p>
+
+<img src="assets/zones.png" alt="Current fire management zones for Alaska"/>
+
+<h2 class="title is-4">What are Ecoregions?</h2>
+<p>Ecoregions are areas where ecosystems (and the type, quality, and quantity of environmental resources) are generally similar (Omernik 1987).</p>
+
+<img src="assets/ecoregions.jpg" alt="Ecoregions of Alaska"/>
+
+''')
 
 graph_layout = html.Div(className="graph", children=[dcc.Graph(id="total_area_burned")])
 about_area = dcc.Markdown('''
@@ -154,9 +227,10 @@ This chart applies to the full spatial domain of ALFRESCO, and is not subset by 
 layout = html.Div(
     className="container",
     children=[
-        navbar,
+        header,
+        intro_text,
         html.Div(
-            className="sticky",
+            className="sticky controls",
             children=[
                 html.Div(
                     className="columns",
@@ -198,7 +272,7 @@ layout = html.Div(
             ],
         ),
         html.H2("About these charts", className="title is-3"),
-        about,
+        ddsih.DangerouslySetInnerHTML(about_text.substitute(prefix=path_prefix)),
         footer,
     ],
 )
