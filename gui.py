@@ -9,9 +9,9 @@ import dash_html_components as html
 import luts
 
 models = luts.models
-models["5modelavg"] = "5-Model Average"
+models["5modelavg"] = "5-model average"
 fmos = luts.fmo_options
-fmos["total"] = "Total Costs"
+fmos["total"] = "total costs"
 
 navbar = html.Div(
     className="navbar",
