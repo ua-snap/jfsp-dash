@@ -130,12 +130,6 @@ def generate_total_area_burned(region, scenario, treatment_options):
         counter += 1
 
     fig.update_layout(
-        title="Total area burned, "
-        + luts.regions[region]
-        + ", "
-        + luts.scenarios[scenario]
-        + ", "
-        + luts.models[luts.MODEL_AVG],
         showlegend=True,
         legend_orientation="h",
         boxmode="group",
@@ -146,20 +140,7 @@ def generate_total_area_burned(region, scenario, treatment_options):
         height=550,
         paper_bgcolor="#fff",
         plot_bgcolor="rgba(0,0,0,0)",
-        margin={"l": 75, "r": 75, "b": 75, "t": 50, "pad": 10},
-        annotations=[
-            go.layout.Annotation(
-                x=.115,
-                y=112200,
-                ax=-20,
-                ay=40,
-                showarrow=True,
-                arrowhead=7,
-                xref="paper",
-                yref="y",
-                text="Historical median, 112.2k ha",
-            )
-        ]
+        margin={"l": 75, "r": 75, "b": 75, "t": 50, "pad": 10}
     )
 
     fig.update_yaxes(
@@ -248,13 +229,6 @@ def generate_veg_counts(region, scenario, treatment_options, option):
         title_option = luts.fmo_options[option] + " option costs"
 
     fig.update_layout(
-        title=title_option
-        + ", vegetation ratios, "
-        + luts.regions[region]
-        + ", "
-        + luts.scenarios[scenario]
-        + ", "
-        + luts.models[luts.MODEL_AVG],
         font={"family": "Arial"},
         showlegend=True,
         legend={"font": {"family": "Arial", "size": 12}, "y": -0.15},
