@@ -92,8 +92,8 @@ def get_cost_df(data_dir, year_range, treatment, scenario, model):
                 treatment=treatment, scenario=scenario, model=model, option=option
             )
             temp_costs = pd.read_csv(filename, index_col=0)
-            reps_median = temp_costs.median(axis=1)  # compute median of reps
-            tidied = tidied.assign(area=reps_median)
+            reps_mean = temp_costs.mean(axis=1)  # compute mean of reps
+            tidied = tidied.assign(area=reps_mean)
             tidied["cost"] = tidied.apply(compute_row_cost, axis=1)
             tidied_costs.append(tidied)
         else:
